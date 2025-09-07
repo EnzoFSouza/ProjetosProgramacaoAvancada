@@ -5,17 +5,37 @@
 
 class BigInt{
     private:
-        bool neg; //true --> negativo
+        bool neg; //se true entao negativo
         int nDig; //sempre >= 1
-        int8_t* d; //aponta para array com nDig e já inicializado como nullptr
-        BigInt(bool isNeg, int tamanho);
+        BigInt(bool isNeg, int tamanho); //Construtor específico 1
+        int8_t* d; //ponteiro q aponta pra int8_t
 
     public:
-        // Construtor default (0 parametros)
+        //Construtor default
         BigInt();
 
-        // Destrutor
+        //Construtor por copia
+        BigInt(const BigInt& B);
+
+        //Construtor por movimento
+        BigInt::BigInt(BigInt&& Temp)
+
+        //Construtor específico 2
+        BigInt::BigInt(long long int N);
+
+        //Destrutor
         ~BigInt();
+
+        //Sobrecarga de operadores
+        //Atribuicao por copia
+        BigInt& operator=(const BigInt& B);
+        BigInt& operator=(BigInt&& B) noexcept;
+        BigInt operator[](int i);
+
+        //Funcoes de consulta
+        isNeg();
+        size();
+        isZero();
 };
 
 
