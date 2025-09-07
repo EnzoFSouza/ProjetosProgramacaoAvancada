@@ -19,15 +19,15 @@ BigInt::BigInt(){
 BigInt::BigInt(const BigInt& B){
     neg = B.neg; //copiando mesmo sinal de B
     nDig = B.nDig; //copiando valor do nDig de B (passado por paramaetro) para o meu objeto
-    d = B.d;
+    if (nDig > 0) d = new int[nDig];
+    else d = nullptr;
+
+    //Copiando elementos de B para atual
+    for (int i = 0; i < nDig; ++i) d[i] = B.d[i];
 }
 
 //Construtor por movimento
-BigInt::BigInt(BigInt&& Temp) noexcept{
-    neg = Temp.neg;
-    nDig = Temp.nDig;
-    d = Temp.d;
-
+BigInt::BigInt(BigInt&& Temp) noexcept: nDig(Temp.nDig), neg(Temp.neg), d(Temp.d){
     //Zerando o temporário
     Temp.nDig = 0;
     Temp.neg = false;
@@ -42,9 +42,8 @@ BigInt::BigInt(bool isNeg, int tamanho){
         d = new int[nDig]; //alocando espaco para N digitos
 
         //preenchendo com zeros
-        for(int i = 0; i < nDig; i++){
+        for(int i = 0; i < nDig; ++i){
             d[i] = 0;
-            //*(d + i) = 0;
         }
     }
     else {
@@ -104,7 +103,9 @@ BigInt& BigInt::operator=(const BigInt& B){
     if (nDig != B.nDig){
         //Limpa conteudo anterior
         delete[] d;
+
         nDig = B.nDig;
+        neg = B.neg;
         //Aloca nova área
         if(nDig > 0) d = new int[nDig];
         else d = nullptr;
@@ -128,6 +129,7 @@ BigInt& BigInt::operator=(BigInt&& B) noexcept{
 
     //Zerando temporario
     B.nDig = 0;
+    B.neg = false;
     B.d = nullptr;
 
     return *this;
