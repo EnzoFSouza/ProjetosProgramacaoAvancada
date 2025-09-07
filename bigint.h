@@ -7,7 +7,7 @@ class BigInt{
     private:
         bool neg; //se true entao negativo
         int nDig; //sempre >= 1
-        int* d; //ponteiro q aponta pra int8_t
+        int* d; //ponteiro q aponta pra int
         BigInt(bool isNeg, int tamanho); //Construtor específico 1
 
     public:
@@ -18,7 +18,7 @@ class BigInt{
         BigInt(const BigInt& B);
 
         //Construtor por movimento
-        BigInt(BigInt&& Temp);
+        BigInt(BigInt&& Temp) noexcept;
 
         //Construtor específico 2
         //Pode servir como conversor de long long int para BigInt, logo nao possui explicit
@@ -31,12 +31,13 @@ class BigInt{
         //Atribuicao por copia
         BigInt& operator=(const BigInt& B);
         BigInt& operator=(BigInt&& B) noexcept;
-        int operator[](int i);
+        int operator[](int i) const;
 
         //Funcoes de consulta
-        bool isNeg();
-        int size();
-        bool isZero();
+        //o terceiro const indica que o metodo nao pode alterar o objeto no qual e chamado
+        bool isNeg() const;
+        int size() const;
+        bool isZero() const;
 };
 
 

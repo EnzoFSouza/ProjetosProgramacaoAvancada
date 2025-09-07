@@ -23,13 +23,14 @@ BigInt::BigInt(const BigInt& B){
 }
 
 //Construtor por movimento
-BigInt::BigInt(BigInt&& Temp){
+BigInt::BigInt(BigInt&& Temp) noexcept{
     neg = Temp.neg;
     nDig = Temp.nDig;
     d = Temp.d;
 
     //Zerando o temporário
     Temp.nDig = 0;
+    Temp.neg = false;
     Temp.d = nullptr;
 }
 
@@ -86,7 +87,7 @@ BigInt::BigInt(long long int N){
 // Destrutor
 BigInt::~BigInt(){
     nDig = 0;
-    //neg = false;
+    neg = false;
     delete[] d;
     d = nullptr;
 }
@@ -98,18 +99,19 @@ BigInt::~BigInt(){
 BigInt& BigInt::operator=(const BigInt& B){
     //Retorna se autoatribuicao
     if(this == &B) return *this;
-    //Limpa conteudo anterior
-    delete[] d;
 
-    //Aloca nova área
-    nDig = B.nDig;
-    if(nDig > 0) d = new int[nDig];
-    else d = nullptr;
+    //Caso as dimensoes sejam diferentes, desaloca a area anterior e aloca uma nova area
+    if (nDig != B.nDig){
+        //Limpa conteudo anterior
+        delete[] d;
+        nDig = B.nDig;
+        //Aloca nova área
+        if(nDig > 0) d = new int[nDig];
+        else d = nullptr;
+    }
 
     //Copiando valores
-    for(int i = 0; i < nDig; i++){
-        d[i] = B.d[i];
-    }
+    for(int i = 0; i < nDig; ++i) d[i] = B.d[i];
     return *this;
 }
 
@@ -131,7 +133,7 @@ BigInt& BigInt::operator=(BigInt&& B) noexcept{
     return *this;
 }
 
-int BigInt::operator[](int i){
+int BigInt::operator[](int i) const{
     //testando o valor de i para ver se é maior q size ou menor que 0
     if ((i >= size()) || (i < 0)){
         return 0;
@@ -142,15 +144,15 @@ int BigInt::operator[](int i){
 
 //Funcoes de Consulta
 //-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-bool BigInt::isNeg(){
+bool BigInt::isNeg() const{
     return neg;
 }
 
-int BigInt::size(){
+int BigInt::size() const{
     return nDig;
 }
 
-bool BigInt::isZero(){
+bool BigInt::isZero() const{
     if ((nDig == 1) && (d[0] == 0)) return true;
     return false;
 }
