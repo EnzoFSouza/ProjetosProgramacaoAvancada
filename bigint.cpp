@@ -84,37 +84,48 @@ BigInt::BigInt(long long int N){
 
 //Construtor específico 3: a partir de string
 BigInt::BigInt(string S){
-    BigInt();
+    neg = false;
+    nDig = 1;
+    d = new int8_t[1];
+    d[0] = 0;
 
     //string invalida
     if (S.empty()) {
         cerr << "Erro na string";
-        BigInt();
-        //return;
+        return;
     }
 
     int inicio = 0;
     if((S[0] == '+') || (S[0] == '-')){
         if(S.size() == 1){ //Só tem o sinal
             cerr << "Erro na string";
-            BigInt();
-            //return;
+            return;
         }
-        neg = (S[0] == '-');
+        if(S[0] == '-') neg = true;
+        else neg = false;
         inicio = 1;
     }
 
     neg = isNeg();
     nDig = S.size() - inicio;
-    BigInt(neg, nDig);
+    //BigInt(neg, nDig);
+    d = new int8_t[nDig];
 
-    for(int i = 0; i < size() - 1; i++){
+    for(int i = 0; i <= size() - 1; ++i){
         char c = S[S.size() - 1 - i];
-        if(!(isdigit(c))){
+        //cout << "ISDIGIT: " << isdigit(c);
+
+        if(!isdigit(c)){
+           delete[] d;
+
+           neg = false;
+           nDig = 1;
+           d = new int8_t[1];
+           d[0] = 0;
            cerr << "Erro na string";
-           BigInt();
-           //return;
+           return;
         }
+
         d[i] = static_cast<int8_t>(c - '0');
     }
     correct();
