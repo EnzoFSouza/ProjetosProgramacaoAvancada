@@ -1,5 +1,6 @@
 #include <iostream>
 #include <cmath>
+#include <cstdint>
 
 #include "bigint.h"
 
@@ -11,23 +12,20 @@ using namespace std;
 BigInt::BigInt(){
     neg = false;
     nDig = 1;
-    d = new int[1]; //Alocando espaco para 1 digito, ponteiro passa a apontar para local válido
-    *d = 0;
+    d = new int8_t[1]; //Alocando espaco para 1 digito, ponteiro passa a apontar para local válido
+    d[0] = 0;
 }
 
 //Construtor por cópia
-BigInt::BigInt(const BigInt& B){
-    neg = B.neg; //copiando mesmo sinal de B
-    nDig = B.nDig; //copiando valor do nDig de B (passado por paramaetro) para o meu objeto
-    if (nDig > 0) d = new int[nDig];
-    else d = nullptr;
+BigInt::BigInt(const BigInt& B) : neg(B.neg), nDig(B.nDig), d(nullptr){
+    if (nDig > 0) d = new int8_t[nDig];
 
     //Copiando elementos de B para atual
     for (int i = 0; i < nDig; ++i) d[i] = B.d[i];
 }
 
 //Construtor por movimento
-BigInt::BigInt(BigInt&& Temp) noexcept: nDig(Temp.nDig), neg(Temp.neg), d(Temp.d){
+BigInt::BigInt(BigInt&& Temp) noexcept: neg(Temp.neg), nDig(Temp.nDig), d(Temp.d){
     //Zerando o temporário
     Temp.nDig = 0;
     Temp.neg = false;
@@ -39,7 +37,7 @@ BigInt::BigInt(bool isNeg, int tamanho){
     neg = isNeg;
     if (tamanho > 0){
         nDig = tamanho;
-        d = new int[nDig]; //alocando espaco para N digitos
+        d = new int8_t[nDig]; //alocando espaco para N digitos
 
         //preenchendo com zeros
         for(int i = 0; i < nDig; ++i){
@@ -57,14 +55,15 @@ BigInt::BigInt(long long int N){
     if (N == 0){
         neg = false;
         nDig = 1;
-        d = new int[1]; //Alocando espaco para 1 digito, ponteiro passa a apontar para local válido
-        *d = 0;
+        d = new int8_t[1]; //Alocando espaco para 1 digito, ponteiro passa a apontar para local válido
+        d[0] = 0;
+        //Se usar BigInt() dá bug
     }
 
     else if(N < 0){
         neg = true;
         nDig = 1 + log10(fabs(N));
-        d = new int[nDig];
+        d = new int8_t[nDig];
         for(int i = 0; i < nDig; i++){
             d[i] = fabs(N%10);
             N = N / 10;
@@ -74,13 +73,51 @@ BigInt::BigInt(long long int N){
     else{
         neg = false;
         nDig = 1 + log10(fabs(N));
-        d = new int[nDig];
+        d = new int8_t[nDig];
         for(int i = 0; i < nDig; i++){
             d[i] = fabs(N%10);
             N = N / 10;
         }
     }
 
+}
+
+//Construtor específico 3: a partir de string
+BigInt::BigInt(string S){
+    BigInt();
+
+    //string invalida
+    if (S.empty()) {
+        cerr << "Erro na string";
+        BigInt();
+        //return;
+    }
+
+    int inicio = 0;
+    if((S[0] == '+') || (S[0] == '-')){
+        if(S.size() == 1){ //Só tem o sinal
+            cerr << "Erro na string";
+            BigInt();
+            //return;
+        }
+        neg = (S[0] == '-');
+        inicio = 1;
+    }
+
+    neg = isNeg();
+    nDig = S.size() - inicio;
+    BigInt(neg, nDig);
+
+    for(int i = 0; i < size() - 1; i++){
+        char c = S[S.size() - 1 - i];
+        if(!(isdigit(c))){
+           cerr << "Erro na string";
+           BigInt();
+           //return;
+        }
+        d[i] = static_cast<int8_t>(c - '0');
+    }
+    correct();
 }
 
 // Destrutor
@@ -107,7 +144,7 @@ BigInt& BigInt::operator=(const BigInt& B){
         nDig = B.nDig;
         neg = B.neg;
         //Aloca nova área
-        if(nDig > 0) d = new int[nDig];
+        if(nDig > 0) d = new int8_t[nDig];
         else d = nullptr;
     }
 
@@ -159,3 +196,34 @@ bool BigInt::isZero() const{
     return false;
 }
 //-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+//Funcoes Suporte
+//-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+void BigInt::correct(){
+    if((size() <= 0) || (d == nullptr)){
+        neg = false;
+        nDig = 1;
+        d = new int8_t[nDig];
+        d[0] = 0;
+        return;
+    }
+
+    int newSize = size();
+    while((newSize > 1) && (d[newSize - 1] == 0)) newSize = newSize - 1;
+
+    if (newSize != size()){
+        neg = isNeg();
+        nDig = newSize;
+        BigInt prov(isNeg(), nDig);
+        for(int i = 0; i < nDig; i++) prov.d[i] = d[i];
+        *this = move(prov);
+    }
+
+    if (size() == 1){
+        if(d[0] < 0){
+            neg = !isNeg();
+            d[0] = fabs(d[0]);
+        }
+        if(d[0] == 0) neg = false;
+    }
+}

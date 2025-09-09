@@ -2,13 +2,20 @@
 #define _BIGINT_H_
 
 #include <iostream>
+#include <cstdint>
+#include <string>
 
 class BigInt{
     private:
         bool neg; //se true entao negativo
         int nDig; //sempre >= 1
-        int* d; //ponteiro q aponta pra int
-        BigInt(bool isNeg, int tamanho); //Construtor específico 1
+        int8_t* d; //ponteiro q aponta pra int
+
+        //Construtor específico 1
+        BigInt(bool isNeg, int tamanho);
+
+        void correct(); //corrigir bigint se necessario
+
 
     public:
         //Construtor default
@@ -23,6 +30,9 @@ class BigInt{
         //Construtor específico 2
         //Pode servir como conversor de long long int para BigInt, logo nao possui explicit
         BigInt(long long int N);
+
+        //Construtor específico 3
+        explicit BigInt(std::string S);
 
         //Destrutor
         ~BigInt();
