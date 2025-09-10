@@ -190,6 +190,51 @@ int BigInt::operator[](int i) const{
     }
     return d[i];
 }
+
+//Imprimindo BigInt
+ostream& operator<<(ostream& O, const BigInt& B){
+    cout << isNeg();
+    if (neg){
+        O << '-';
+    }
+
+    for (int i = size() - 1; i >= 0; i--){
+        O << B[i];
+    }
+    return O;
+}
+
+//Digitando BigInt
+istream& operator>>(istream& I, BigInt& B){
+    neg = false;
+    nDig = 0;
+    istream::sentry s(I);
+    if(s){ //stream OK
+        char c = I.peek();
+        if ((c = '+') || (c = '-')){
+            c = I.get();
+            neg = (c == '-');
+            c = I.peek();
+        }
+        while(isdigit(c)){
+            c = I.get();
+            nDig = size() + 1;
+            int8_t* prov = new int8_t[nDig];
+
+            for(int i = nDig - 1; i > 0; i--) prov[i] = d[i];
+            prov[0] = static_cast<int8_t>(c - '0');
+
+            delete[] d;
+
+            d = prov;
+
+            //Verificando o proximo char
+            c = I.peek();
+        }
+        if(size() == 0) ios::failbit;
+    }
+    correct();
+}
 //-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
 //Funcoes de Consulta
@@ -237,4 +282,17 @@ void BigInt::correct(){
         }
         if(d[0] == 0) neg = false;
     }
+}
+
+long long int toInt(){
+    long long int val = 0;
+    for(int i = size() - 1; i >= 0; i--){
+        val = 10 * val + d[i];
+        if(val < 0){
+            cerr << "Erro na conversao para long long int";
+            return 0;
+        }
+    }
+    if (isNeg()) val = val * -1;
+    return val;
 }

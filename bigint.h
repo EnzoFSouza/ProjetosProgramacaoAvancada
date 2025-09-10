@@ -42,12 +42,16 @@ class BigInt{
         BigInt& operator=(const BigInt& B);
         BigInt& operator=(BigInt&& B) noexcept;
         int operator[](int i) const;
+        friend std::ostream& operator<<(std::ostream& O, const BigInt& B);
+        friend std::istream& operator>>(std::istream& I, BigInt& B);
 
         //Funcoes de consulta
         //o terceiro const indica que o metodo nao pode alterar o objeto no qual e chamado
         bool isNeg() const;
         int size() const;
         bool isZero() const;
+
+        long long int toInt();
 };
 
 
