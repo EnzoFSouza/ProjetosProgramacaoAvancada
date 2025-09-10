@@ -197,7 +197,7 @@ ostream& operator<<(ostream& O, const BigInt& B){
         O << '-';
     }
 
-    for (int i = B.size() - 1; i >= 0; i--){
+    for (int i = B.size() - 1; i >= 0; --i){
         O << B[i];
     }
     return O;
@@ -207,25 +207,31 @@ ostream& operator<<(ostream& O, const BigInt& B){
 istream& operator>>(istream& I, BigInt& B){
     B.neg = false;
     B.nDig = 0;
+
     istream::sentry s(I);
+
     if(s){ //stream OK
         char c = I.peek();
         if ((c = '+') || (c = '-')){
             c = I.get();
-            B.neg = (c == '-');
+            if (c == '-') B.neg = true;
+            else B.neg = false;
             c = I.peek();
         }
         while(isdigit(c)){
             c = I.get();
             B.nDig = B.size() + 1;
+
             int8_t* prov = new int8_t[B.nDig];
 
-            for(int i = B.nDig - 1; i > 0; i--) prov[i] = B.d[i];
+            for(int i = B.nDig - 1; i > 0; i--) prov[i] = B.d[i - 1];
+
             prov[0] = static_cast<int8_t>(c - '0');
 
             delete[] B.d;
 
             B.d = prov;
+            //B.d[0] = static_cast<int8_t>(c - '0');
 
             //Verificando o proximo char
             c = I.peek();
@@ -233,6 +239,7 @@ istream& operator>>(istream& I, BigInt& B){
         if(B.size() == 0) ios::failbit;
     }
     B.correct();
+
     return I;
 }
 //-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
