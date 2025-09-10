@@ -193,12 +193,11 @@ int BigInt::operator[](int i) const{
 
 //Imprimindo BigInt
 ostream& operator<<(ostream& O, const BigInt& B){
-    cout << isNeg();
-    if (neg){
+    if (B.isNeg()){
         O << '-';
     }
 
-    for (int i = size() - 1; i >= 0; i--){
+    for (int i = B.size() - 1; i >= 0; i--){
         O << B[i];
     }
     return O;
@@ -206,34 +205,35 @@ ostream& operator<<(ostream& O, const BigInt& B){
 
 //Digitando BigInt
 istream& operator>>(istream& I, BigInt& B){
-    neg = false;
-    nDig = 0;
+    B.neg = false;
+    B.nDig = 0;
     istream::sentry s(I);
     if(s){ //stream OK
         char c = I.peek();
         if ((c = '+') || (c = '-')){
             c = I.get();
-            neg = (c == '-');
+            B.neg = (c == '-');
             c = I.peek();
         }
         while(isdigit(c)){
             c = I.get();
-            nDig = size() + 1;
-            int8_t* prov = new int8_t[nDig];
+            B.nDig = B.size() + 1;
+            int8_t* prov = new int8_t[B.nDig];
 
-            for(int i = nDig - 1; i > 0; i--) prov[i] = d[i];
+            for(int i = B.nDig - 1; i > 0; i--) prov[i] = B.d[i];
             prov[0] = static_cast<int8_t>(c - '0');
 
-            delete[] d;
+            delete[] B.d;
 
-            d = prov;
+            B.d = prov;
 
             //Verificando o proximo char
             c = I.peek();
         }
-        if(size() == 0) ios::failbit;
+        if(B.size() == 0) ios::failbit;
     }
-    correct();
+    B.correct();
+    return I;
 }
 //-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
@@ -284,7 +284,7 @@ void BigInt::correct(){
     }
 }
 
-long long int toInt(){
+long long int BigInt::toInt(){
     long long int val = 0;
     for(int i = size() - 1; i >= 0; i--){
         val = 10 * val + d[i];
