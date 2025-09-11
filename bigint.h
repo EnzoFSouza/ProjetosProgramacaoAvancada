@@ -15,6 +15,8 @@ class BigInt{
         BigInt(bool isNeg, int tamanho);
 
         void correct(); //corrigir bigint se necessario
+        void increment(); //aumentar digitos do bigint
+        void decrement(); //diminuir digitos do bigint
 
 
     public:
@@ -41,6 +43,7 @@ class BigInt{
         //Atribuicao por copia
         BigInt& operator=(const BigInt& B);
         BigInt& operator=(BigInt&& B) noexcept;
+
         int operator[](int i) const;
         bool operator==(const BigInt& B) const;
         bool operator!=(const BigInt& B) const;
@@ -48,6 +51,11 @@ class BigInt{
         bool operator>(const BigInt& B) const;
         bool operator<=(const BigInt& B) const;
         bool operator>=(const BigInt& B) const;
+        BigInt& operator++();
+        BigInt& operator--();
+        BigInt operator++(int);
+        BigInt operator--(int);
+
         friend std::ostream& operator<<(std::ostream& O, const BigInt& B);
         friend std::istream& operator>>(std::istream& I, BigInt& B);
 

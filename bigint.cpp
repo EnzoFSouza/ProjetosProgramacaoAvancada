@@ -241,6 +241,34 @@ bool BigInt::operator>=(const BigInt& B) const{
     return !(*this < B);
 }
 
+BigInt& BigInt::operator++(){
+    if(!isNeg()) increment();
+    else decrement();
+    return *this;
+}
+
+BigInt& BigInt::operator--(){
+    if(isNeg()) increment();
+    else decrement();
+    return *this;
+}
+
+BigInt BigInt::operator++(int){
+    BigInt prov = *this; //criando copia
+    //*this++; //incrementando o this
+    if(!isNeg()) increment();
+    else decrement();
+    return prov; //retorna o prov
+}
+
+BigInt BigInt::operator--(int){
+    BigInt prov = *this; //criando copia
+    //*this--; //decrementando o this
+    if(isNeg()) increment();
+    else decrement();
+    return prov; //retorna o prov
+}
+
 //Imprimindo BigInt
 ostream& operator<<(ostream& O, const BigInt& B){
     if (B.isNeg()){
@@ -347,6 +375,41 @@ long long int BigInt::toInt(){
     }
     if (isNeg()) val = val * -1;
     return val;
+}
+
+void BigInt::increment(){
+    int k = 0;
+    d[k] = d[k] + 1;
+    while((k < size() - 1) && (d[k] > 9)){
+        d[k] = 0;
+        k = k + 1;
+        d[k] = d[k] + 1;
+    }
+    if((k = size() - 1) && (d[k] > 9)){
+        BigInt prov(isNeg(), size() + 1);
+
+        //passando os digitos do atual para prov
+        for (int i = 0; i < size() - 1; i++) prov.d[i] = d[i];
+
+        prov.d[size() - 1] = 0;
+        prov.d[size()] = 1;
+
+        *this = move(prov);
+    }
+}
+
+void BigInt::decrement(){
+    int k = 0;
+    d[k] = d[k] + 1;
+    while((k < size() - 1) && (d[k] < 0)){
+        d[k] = 9;
+        k = k + 1;
+        d[k] = d[k] - 1;
+    }
+    if((k == size() - 1) && (d[k] <= 0)){
+        //digito mais significativo se tornou zero ou negativo
+        correct();
+    }
 }
 
 BigInt& abs(BigInt& B){
