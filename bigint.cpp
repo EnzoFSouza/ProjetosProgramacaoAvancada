@@ -284,13 +284,15 @@ BigInt BigInt::operator-() const{
 }
 
 BigInt BigInt::operator+(const BigInt& B) const{
+    BigInt prov = *this;
+
     if(isNeg() == B.isNeg()){
         BigInt C(isNeg(), 1 + max(size(), B.size()));
         int carry = 0;
-        for (int i = 0; i < C.size() - 1; i++){
-            C.d[i] = d[i] + B.d[i] + carry;
+        for (int i = 0; i <= C.size() - 1; i++){
+            C.d[i] = prov[i] + B[i] + carry;
             if(C.d[i] > 9){
-                C.d[i] = C.d[i] - 10;
+                C.d[i] -= 10;
                 carry = 1;
             }
             else{
@@ -305,9 +307,9 @@ BigInt BigInt::operator+(const BigInt& B) const{
             BigInt C(isNeg(), size());
             int borrow = 0;
             for (int i = 0; i <= C.size() - 1; i++){
-                C.d[i] = d[i] - B[i] - borrow;
+                C.d[i] = prov[i] - B[i] - borrow;
                 if (C.d[i] < 0){
-                    C.d[i] = C.d[i] + 10;
+                    C.d[i] += 10;
                     borrow = 1;
                 }
                 else{
