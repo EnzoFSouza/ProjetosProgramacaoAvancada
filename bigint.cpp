@@ -191,6 +191,56 @@ int BigInt::operator[](int i) const{
     return d[i];
 }
 
+bool BigInt::operator==(const BigInt& B) const{
+    if (B.size() != size()) return false;
+
+    if (B.neg != neg) return false;
+
+    for(int i = 0; i < size(); i ++){
+        if (B.d[i] != d[i]) return false;
+    }
+    return true;
+}
+
+bool BigInt::operator!=(const BigInt& B) const{
+    return !(*this == B);
+}
+
+bool BigInt::operator<(const BigInt& B) const{
+    if (isNeg() != B.isNeg()) return isNeg();
+
+    //Ambos negativos
+    if (isNeg()){
+        if (size() != B.size()) return (size() > B.size());
+        for (int i = size() - 1; i >= 0; i--){
+            if (d[i] != B.d[i]) return d[i] > B.d[i];
+        }
+    }
+
+    //ambos positivos ou nulos
+    if (size() != B.size()) return size() < B.size();
+
+    //mesmo numero de digitos
+    for (int i = size() - 1; i >= 0; i--){
+        if (d[i] != B.d[i]) return d[i] < B.d[i];
+    }
+
+    //numeros identicos
+    return false;
+}
+
+bool BigInt::operator>(const BigInt& B) const{
+    return B < *this;
+}
+
+bool BigInt::operator<=(const BigInt& B) const{
+    return !(B < *this);
+}
+
+bool BigInt::operator>=(const BigInt& B) const{
+    return !(*this < B);
+}
+
 //Imprimindo BigInt
 ostream& operator<<(ostream& O, const BigInt& B){
     if (B.isNeg()){
@@ -297,4 +347,9 @@ long long int BigInt::toInt(){
     }
     if (isNeg()) val = val * -1;
     return val;
+}
+
+BigInt& abs(BigInt& B){
+    if(B.neg) B.neg = false;
+    return B;
 }

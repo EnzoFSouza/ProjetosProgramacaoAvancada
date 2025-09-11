@@ -1,86 +1,100 @@
 #include <iostream>
-#include <limits>
 #include "bigint.h"
 
 using namespace std;
 
 int main(void)
 {
-  // Testando toInt
-  cout << "I1: Nao deve imprimir nenhuma msg de erro de conversao\n";
-  long long int V,W;
-  for (V=-1000000; V<=1000000; ++V)
-  {
-    BigInt BI(V);
-    W = BI.toInt();
-    if (V!=W) cerr << "Erro na conversao int/BigInt/int: " << V << ',' << W << endl;
-  }
+  BigInt BI0(0), BI1(1), BIm1(-1),
+         BIbig(1234567890), BImbig(-1234567890), BIbig1(1234567891);
 
-  // Conversao de BigInt fora de faixa para inteiro.
-  // Deve emitir erro e retornar 0.
-  BigInt P12("123456789012345678901234567890");
-  BigInt P13("-123456789012345678901234567890");
-  cout << "I2: Deve imprimir msg de erro e valor 0\n";
-  cout << "Valor convertido de P12=" << P12.toInt() << endl;
-  cout << "I3: Deve imprimir msg de erro e valor 0\n";
-  cout << "Valor convertido de P13=" << P13.toInt() << endl;
+  cout << "CONFIRA SE AS RESPOSTAS SIM/NAO GERADAS PELO PROGRAMA ESTAO CORRETAS\n\n";
 
-  BigInt BI;
-  string msg[] = {
-    "<ENTER><ENTER><TAB><TAB><espaco><espaco>12",
-    "z",
-    "-",
-    "+",
-    "-0",
-    "0000",
-    "0075",
-    "-0075",
-    "123z",
-    "Nao vai esperar digitar, pois vai processar o que ficou da digitacao anterior",
-    "32-16",
-    "Nao vai esperar digitar, pois vai processar o que ficou da digitacao anterior",
-    "1 2 3",
-    "Nao vai esperar digitar, pois vai processar o que ficou da digitacao anterior",
-    "Nao vai esperar digitar, pois vai processar o que ficou da digitacao anterior",
-    "+123456789012345678901234567890",
-    "-123456789012345678901234567890"
-  };
-  string result[] = {
-    "12",
-    "msg de erro e 0",
-    "msg de erro e 0",
-    "msg de erro e 0",
-    "0",
-    "0",
-    "75",
-    "-75",
-    "123",
-    "msg de erro e 0",
-    "32",
-    "-16",
-    "1",
-    "2",
-    "3",
-    "+123456789012345678901234567890",
-    "-123456789012345678901234567890"
-  };
+  // Teste do valor absoluto
+  cout << "\nTESTE DO ABS:\n";
+  cout << "I01:\t" << "BI=" << BI0 << "\tabs(BI)=" << abs(BI0) << endl;
+  cout << "I02:\t" << "BI=" << BI1 << "\tabs(BI)=" << abs(BI1) << endl;
+  cout << "I03:\t" << "BI=" << BIm1 << "\tabs(BI)=" << abs(BIm1) << endl;
+  cout << "I05:\t" << "BI=" << BIbig << "\tabs(BI)=" << abs(BIbig) << endl;
+  cout << "I06:\t" << "BI=" << BImbig << "\tabs(BI)=" << abs(BImbig) << endl;
 
-  string nada;
-  for (int i=0; i<17; ++i)
-  {
-    cout << "\nDigite " << msg[i] << endl;
-    cout << "> ";
-    cin >> BI;
-    cout << "I" << i+4 << ": Deve imprimir " << result[i] << endl;
-    if (cin.fail())
-    {
-      cin.clear(); // Limpa o estado de erro
-      cout << "Erro na leitura! ";
-      // Para ler tudo que foi digitado ateh o proximo ENTER, incluindo o que gerou erro
-      getline(cin,nada);
-    }
-    cout << "BI=" << BI << endl;
-  }
+  // Teste da igualdade
+  cout << "\nTESTE DA IGUALDADE:\n";
+  cout << "I07:\t" << BI0 << "==" << BI0 << " ? " << (BI0==BI0 ? "SIM" : "NAO") << endl;
+  cout << "I08:\t" << BI0 << "==" << BigInt() << " ? " << (BI0==BigInt() ? "SIM" : "NAO") << endl;
+  cout << "I09:\t" << BI0 << "==" << BI1 << " ? " << (BI0==BI1 ? "SIM" : "NAO") << endl;
+  cout << "I10:\t" << BigInt(1) << "==" << BI1 << " ? " << (BigInt(1)==BI1 ? "SIM" : "NAO") << endl;
+  cout << "I11:\t" << BIm1 << "==" << BI1 << " ? " << (BIm1==BI1 ? "SIM" : "NAO") << endl;
+  cout << "I12:\t" << BIbig << "==" << BI1 << " ? " << (BIbig==BI1 ? "SIM" : "NAO") << endl;
+  cout << "I13:\t" << BIbig << "==" << BIbig << " ? " << (BIbig==BIbig ? "SIM" : "NAO") << endl;
+  cout << "I14:\t" << BIbig << "==" << BImbig << " ? " << (BIbig==BImbig ? "SIM" : "NAO") << endl;
+
+  // Teste da desigualdade
+  cout << "\nTESTE DA DESIGUALDADE:\n";
+  cout << "I15:\t" << BI0 << "!=" << BI0 << " ? " << (BI0!=BI0 ? "SIM" : "NAO") << endl;
+  cout << "I16:\t" << BI0 << "!=" << BigInt() << " ? " << (BI0!=BigInt() ? "SIM" : "NAO") << endl;
+  cout << "I17:\t" << BI0 << "!=" << BI1 << " ? " << (BI0!=BI1 ? "SIM" : "NAO") << endl;
+  cout << "I18:\t" << BigInt(1) << "!=" << BI1 << " ? " << (BigInt(1)!=BI1 ? "SIM" : "NAO") << endl;
+  cout << "I19:\t" << BIm1 << "!=" << BI1 << " ? " << (BIm1!=BI1 ? "SIM" : "NAO") << endl;
+  cout << "I20:\t" << BIbig << "!=" << BI1 << " ? " << (BIbig!=BI1 ? "SIM" : "NAO") << endl;
+  cout << "I21:\t" << BIbig << "!=" << BIbig << " ? " << (BIbig!=BIbig ? "SIM" : "NAO") << endl;
+  cout << "I22:\t" << BIbig << "!=" << BImbig << " ? " << (BIbig!=BImbig ? "SIM" : "NAO") << endl;
+
+  // Teste do <
+  cout << "\nTESTE DO <:\n";
+  cout << "I23:\t" << BIm1 << "<" << BI0 << " ? " << (BIm1<BI0 ? "SIM" : "NAO") << endl;
+  cout << "I24:\t" << BI1 << "<" << BIm1 << " ? " << (BI1<BIm1 ? "SIM" : "NAO") << endl;
+  cout << "I25:\t" << BImbig << "<" << BIm1 << " ? " << (BImbig<BIm1 ? "SIM" : "NAO") << endl;
+  cout << "I26:\t" << BIm1 << "<" << BImbig << " ? " << (BIm1<BImbig ? "SIM" : "NAO") << endl;
+  cout << "I27:\t" << BI1 << "<" << BIbig << " ? " << (BI1<BIbig ? "SIM" : "NAO") << endl;
+  cout << "I28:\t" << BIbig << "<" << BI1 << " ? " << (BIbig<BI1 ? "SIM" : "NAO") << endl;
+  cout << "I29:\t" << BIbig << "<" << BIbig1 << " ? " << (BIbig<BIbig1 ? "SIM" : "NAO") << endl;
+  cout << "I30:\t" << BIbig1 << "<" << BIbig << " ? " << (BIbig1<BIbig ? "SIM" : "NAO") << endl;
+  cout << "I31:\t" << BI0 << "<" << BI0 << " ? " << (BI0<BI0 ? "SIM" : "NAO") << endl;
+  cout << "I32:\t" << BI1 << "<" << BI1 << " ? " << (BI1<BI1 ? "SIM" : "NAO") << endl;
+  cout << "I33:\t" << BIbig << "<" << BIbig << " ? " << (BIbig<BIbig ? "SIM" : "NAO") << endl;
+
+  // Teste do <=
+  cout << "\nTESTE DO <=:\n";
+  cout << "I34:\t" << BIm1 << "<=" << BI0 << " ? " << (BIm1<=BI0 ? "SIM" : "NAO") << endl;
+  cout << "I35:\t" << BI1 << "<=" << BIm1 << " ? " << (BI1<=BIm1 ? "SIM" : "NAO") << endl;
+  cout << "I36:\t" << BImbig << "<=" << BIm1 << " ? " << (BImbig<=BIm1 ? "SIM" : "NAO") << endl;
+  cout << "I37:\t" << BIm1 << "<=" << BImbig << " ? " << (BIm1<=BImbig ? "SIM" : "NAO") << endl;
+  cout << "I38:\t" << BI1 << "<=" << BIbig << " ? " << (BI1<=BIbig ? "SIM" : "NAO") << endl;
+  cout << "I39:\t" << BIbig << "<=" << BI1 << " ? " << (BIbig<=BI1 ? "SIM" : "NAO") << endl;
+  cout << "I40:\t" << BIbig << "<=" << BIbig1 << " ? " << (BIbig<=BIbig1 ? "SIM" : "NAO") << endl;
+  cout << "I41:\t" << BIbig1 << "<=" << BIbig << " ? " << (BIbig1<=BIbig ? "SIM" : "NAO") << endl;
+  cout << "I42:\t" << BI0 << "<=" << BI0 << " ? " << (BI0<=BI0 ? "SIM" : "NAO") << endl;
+  cout << "I43:\t" << BI1 << "<=" << BI1 << " ? " << (BI1<=BI1 ? "SIM" : "NAO") << endl;
+  cout << "I44:\t" << BIbig << "<=" << BIbig << " ? " << (BIbig<=BIbig ? "SIM" : "NAO") << endl;
+
+  // Teste do >
+  cout << "\nTESTE DO >:\n";
+  cout << "I45:\t" << BIm1 << ">" << BI0 << " ? " << (BIm1>BI0 ? "SIM" : "NAO") << endl;
+  cout << "I46:\t" << BI1 << ">" << BIm1 << " ? " << (BI1>BIm1 ? "SIM" : "NAO") << endl;
+  cout << "I47:\t" << BImbig << ">" << BIm1 << " ? " << (BImbig>BIm1 ? "SIM" : "NAO") << endl;
+  cout << "I48:\t" << BIm1 << ">" << BImbig << " ? " << (BIm1>BImbig ? "SIM" : "NAO") << endl;
+  cout << "I49:\t" << BI1 << ">" << BIbig << " ? " << (BI1>BIbig ? "SIM" : "NAO") << endl;
+  cout << "I50:\t" << BIbig << ">" << BI1 << " ? " << (BIbig>BI1 ? "SIM" : "NAO") << endl;
+  cout << "I51:\t" << BIbig << ">" << BIbig1 << " ? " << (BIbig>BIbig1 ? "SIM" : "NAO") << endl;
+  cout << "I52:\t" << BIbig1 << ">" << BIbig << " ? " << (BIbig1>BIbig ? "SIM" : "NAO") << endl;
+  cout << "I53:\t" << BI0 << ">" << BI0 << " ? " << (BI0>BI0 ? "SIM" : "NAO") << endl;
+  cout << "I54:\t" << BI1 << ">" << BI1 << " ? " << (BI1>BI1 ? "SIM" : "NAO") << endl;
+  cout << "I55:\t" << BIbig << ">" << BIbig << " ? " << (BIbig>BIbig ? "SIM" : "NAO") << endl;
+
+  // Teste do >=
+  cout << "\nTESTE DO >=:\n";
+  cout << "I56:\t" << BIm1 << ">=" << BI0 << " ? " << (BIm1>=BI0 ? "SIM" : "NAO") << endl;
+  cout << "I57:\t" << BI1 << ">=" << BIm1 << " ? " << (BI1>=BIm1 ? "SIM" : "NAO") << endl;
+  cout << "I58:\t" << BImbig << ">=" << BIm1 << " ? " << (BImbig>=BIm1 ? "SIM" : "NAO") << endl;
+  cout << "I59:\t" << BIm1 << ">=" << BImbig << " ? " << (BIm1>=BImbig ? "SIM" : "NAO") << endl;
+  cout << "I60:\t" << BI1 << ">=" << BIbig << " ? " << (BI1>=BIbig ? "SIM" : "NAO") << endl;
+  cout << "I61:\t" << BIbig << ">=" << BI1 << " ? " << (BIbig>=BI1 ? "SIM" : "NAO") << endl;
+  cout << "I62:\t" << BIbig << ">=" << BIbig1 << " ? " << (BIbig>=BIbig1 ? "SIM" : "NAO") << endl;
+  cout << "I63:\t" << BIbig1 << ">=" << BIbig << " ? " << (BIbig1>=BIbig ? "SIM" : "NAO") << endl;
+  cout << "I64:\t" << BI0 << ">=" << BI0 << " ? " << (BI0>=BI0 ? "SIM" : "NAO") << endl;
+  cout << "I65:\t" << BI1 << ">=" << BI1 << " ? " << (BI1>=BI1 ? "SIM" : "NAO") << endl;
+  cout << "I66:\t" << BIbig << ">=" << BIbig << " ? " << (BIbig>=BIbig ? "SIM" : "NAO") << endl;
 
   return 0;
 }

@@ -42,6 +42,12 @@ class BigInt{
         BigInt& operator=(const BigInt& B);
         BigInt& operator=(BigInt&& B) noexcept;
         int operator[](int i) const;
+        bool operator==(const BigInt& B) const;
+        bool operator!=(const BigInt& B) const;
+        bool operator<(const BigInt& B) const;
+        bool operator>(const BigInt& B) const;
+        bool operator<=(const BigInt& B) const;
+        bool operator>=(const BigInt& B) const;
         friend std::ostream& operator<<(std::ostream& O, const BigInt& B);
         friend std::istream& operator>>(std::istream& I, BigInt& B);
 
@@ -52,6 +58,7 @@ class BigInt{
         bool isZero() const;
 
         long long int toInt();
+        friend BigInt& abs(BigInt& B);
 };
 
 
