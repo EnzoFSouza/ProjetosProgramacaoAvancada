@@ -329,6 +329,47 @@ BigInt BigInt::operator-(const BigInt& B) const{
     return *this + (-B);
 }
 
+BigInt BigInt::operator*(const BigInt& B) const{
+    if ((isZero()) || (B.isZero())) return BigInt(0);
+
+    BigInt C(!(isNeg() == B.isNeg()), size() + B.size());
+
+    for (int i = 0; i <= size() - 1; i++){
+        if (d[i] != 0){
+            for (int j = 0; j <= B.size() - 1; j++){
+                if (B.d[j] != 0){
+                    int k = i + j;
+                    C.d[k] = C.d[k] + (d[i] * B.d[j]);
+                    while (C.d[k] > 9){
+                        int carry = C.d[k] / 10;
+                        C.d[k] = C.d[k] % 10;
+                        k = k + 1;
+                        C.d[k] = C.d[k] + carry;
+                    }
+                }
+            }
+        }
+    }
+    C.correct();
+    return C;
+}
+
+BigInt BigInt::operator!() const{
+    if(isNeg()){
+        cerr << "Nao pode calcular fatorial de numero negativo";
+        return BigInt(0);
+    }
+
+    BigInt prov = *this;
+    BigInt C(1);
+
+    for (BigInt N(2); N <= prov; N++){
+        C = C * N;
+    }
+
+    return C;
+}
+
 //Imprimindo BigInt
 ostream& operator<<(ostream& O, const BigInt& B){
     if (B.isNeg()){

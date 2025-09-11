@@ -57,6 +57,8 @@ class BigInt{
         BigInt operator-() const; //operator - unario
         BigInt operator+(const BigInt& B) const; //operator + binario
         BigInt operator-(const BigInt& B) const; //operator - binario
+        BigInt operator*(const BigInt& B) const; //operator * binario
+        BigInt operator!() const; //operator ! unario
 
         friend std::ostream& operator<<(std::ostream& O, const BigInt& B);
         friend std::istream& operator>>(std::istream& I, BigInt& B);
