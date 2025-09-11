@@ -371,13 +371,11 @@ BigInt BigInt::operator!() const{
 }
 
 BigInt BigInt::operator<<(int n) const{
-    //BigInt prov = *this;
-
     if((n <= 0) || (isZero())) return *this;
 
     BigInt C(isNeg(), size() + n);
 
-    for (int i = 0; i < C.size() - 1; i++){
+    for (int i = 0; i <= C.size() - 1; i++){
         if (i < n) C.d[i] = 0;
         else C.d[i] = d[i - n];
     }
@@ -391,7 +389,7 @@ BigInt BigInt::operator>>(int n) const{
 
     BigInt C(isNeg(), size() - n);
 
-    for (int i = 0; i < C.size() - 1; i++) C.d[i] = d[i + n];
+    for (int i = 0; i <= C.size() - 1; i++) C.d[i] = d[i + n];
     return C;
 }
 
