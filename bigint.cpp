@@ -385,11 +385,11 @@ void BigInt::increment(){
         k = k + 1;
         d[k] = d[k] + 1;
     }
-    if((k = size() - 1) && (d[k] > 9)){
+    if((k == size() - 1) && (d[k] > 9)){
         BigInt prov(isNeg(), size() + 1);
 
         //passando os digitos do atual para prov
-        for (int i = 0; i < size() - 1; i++) prov.d[i] = d[i];
+        for (int i = 0; i < size(); i++) prov.d[i] = d[i];
 
         prov.d[size() - 1] = 0;
         prov.d[size()] = 1;
@@ -400,7 +400,7 @@ void BigInt::increment(){
 
 void BigInt::decrement(){
     int k = 0;
-    d[k] = d[k] + 1;
+    d[k] = d[k] - 1;
     while((k < size() - 1) && (d[k] < 0)){
         d[k] = 9;
         k = k + 1;
