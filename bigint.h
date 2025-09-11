@@ -40,10 +40,8 @@ class BigInt{
         ~BigInt();
 
         //Sobrecarga de operadores
-        //Atribuicao por copia
-        BigInt& operator=(const BigInt& B);
+        BigInt& operator=(const BigInt& B); //Atribuicao por copia
         BigInt& operator=(BigInt&& B) noexcept;
-
         int operator[](int i) const;
         bool operator==(const BigInt& B) const;
         bool operator!=(const BigInt& B) const;
@@ -55,6 +53,10 @@ class BigInt{
         BigInt& operator--();
         BigInt operator++(int);
         BigInt operator--(int);
+        const BigInt& operator+() const; //operator + unario
+        BigInt operator-() const; //operator - unario
+        BigInt operator+(const BigInt& B) const; //operator + binario
+        BigInt operator-(const BigInt& B) const; //operator - binario
 
         friend std::ostream& operator<<(std::ostream& O, const BigInt& B);
         friend std::istream& operator>>(std::istream& I, BigInt& B);
@@ -66,7 +68,7 @@ class BigInt{
         bool isZero() const;
 
         long long int toInt();
-        friend BigInt& abs(BigInt& B);
+        friend BigInt abs(const BigInt& B);
 };
 
 

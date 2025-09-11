@@ -269,6 +269,64 @@ BigInt BigInt::operator--(int){
     return prov; //retorna o prov
 }
 
+const BigInt& BigInt::operator+() const{
+    return *this;
+}
+
+BigInt BigInt::operator-() const{
+    if((isNeg() == false) && (size() == 1) && (d[0] == 0)){
+        return BigInt(0); //criando um bigint q vale 0 e retornando ele
+    }
+
+    BigInt prov = *this; //criando copia
+    prov.neg = !isNeg(); //alterando sinal
+    return prov;
+}
+
+BigInt BigInt::operator+(const BigInt& B) const{
+    if(isNeg() == B.isNeg()){
+        BigInt C(isNeg(), 1 + max(size(), B.size()));
+        int carry = 0;
+        for (int i = 0; i < C.size() - 1; i++){
+            C.d[i] = d[i] + B.d[i] + carry;
+            if(C.d[i] > 9){
+                C.d[i] = C.d[i] - 10;
+                carry = 1;
+            }
+            else{
+                carry = 0;
+            }
+        }
+        C.correct();
+        return C;
+    }
+    else{ //sinais diferentes
+        if(abs(*this) >= abs(B)){
+            BigInt C(isNeg(), size());
+            int borrow = 0;
+            for (int i = 0; i <= C.size() - 1; i++){
+                C.d[i] = d[i] - B[i] - borrow;
+                if (C.d[i] < 0){
+                    C.d[i] = C.d[i] + 10;
+                    borrow = 1;
+                }
+                else{
+                    borrow = 0;
+                }
+            }
+            C.correct();
+            return C;
+        }
+        else{
+            return B + *this;
+        }
+    }
+}
+
+BigInt BigInt::operator-(const BigInt& B) const{
+    return *this + (-B);
+}
+
 //Imprimindo BigInt
 ostream& operator<<(ostream& O, const BigInt& B){
     if (B.isNeg()){
@@ -412,7 +470,8 @@ void BigInt::decrement(){
     }
 }
 
-BigInt& abs(BigInt& B){
-    if(B.neg) B.neg = false;
-    return B;
+BigInt abs(const BigInt& B){
+    BigInt modulo(false, B.size());
+    for (int i = 0; i < B.size(); i++) modulo.d[i] = B.d[i];
+    return modulo;
 }
