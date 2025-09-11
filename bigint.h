@@ -59,6 +59,10 @@ class BigInt{
         BigInt operator-(const BigInt& B) const; //operator - binario
         BigInt operator*(const BigInt& B) const; //operator * binario
         BigInt operator!() const; //operator ! unario
+        BigInt operator<<(int n) const;
+        BigInt operator>>(int n) const;
+        const BigInt operator/(BigInt& D) const;
+        const BigInt operator%(BigInt& D) const;
 
         friend std::ostream& operator<<(std::ostream& O, const BigInt& B);
         friend std::istream& operator>>(std::istream& I, BigInt& B);
@@ -70,6 +74,8 @@ class BigInt{
         bool isZero() const;
 
         long long int toInt();
+        void division(const BigInt& D, BigInt& Q, BigInt& R) const;
+
         friend BigInt abs(const BigInt& B);
 };
 

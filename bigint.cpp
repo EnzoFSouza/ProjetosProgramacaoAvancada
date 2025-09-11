@@ -370,6 +370,43 @@ BigInt BigInt::operator!() const{
     return C;
 }
 
+BigInt BigInt::operator<<(int n) const{
+    //BigInt prov = *this;
+
+    if((n <= 0) || (isZero())) return *this;
+
+    BigInt C(isNeg(), size() + n);
+
+    for (int i = 0; i < C.size() - 1; i++){
+        if (i < n) C.d[i] = 0;
+        else C.d[i] = d[i - n];
+    }
+
+    return C;
+}
+
+BigInt BigInt::operator>>(int n) const{
+    if ((n <= 0) || (isZero())) return *this;
+    if (n >= size()) return BigInt(0);
+
+    BigInt C(isNeg(), size() - n);
+
+    for (int i = 0; i < C.size() - 1; i++) C.d[i] = d[i + n];
+    return C;
+}
+
+const BigInt BigInt::operator/(BigInt& D) const{
+    BigInt Q, R;
+    division(D, Q, R);
+    return Q;
+}
+
+const BigInt BigInt::operator%(BigInt& D) const{
+    BigInt Q, R;
+    division(D, Q, R);
+    return R;
+}
+
 //Imprimindo BigInt
 ostream& operator<<(ostream& O, const BigInt& B){
     if (B.isNeg()){
@@ -511,6 +548,38 @@ void BigInt::decrement(){
         //digito mais significativo se tornou zero ou negativo
         correct();
     }
+}
+
+void BigInt::division(const BigInt& D, BigInt& Q, BigInt& R) const{
+    Q = BigInt(0);
+    if ((isZero()) || (D.isZero())){
+        if (D.isZero()) cerr << "Erro: Divisao por zero";
+        R = BigInt(0);
+        return;
+    }
+    if (abs(*this) < abs(D)){
+        R = *this;
+        return;
+    }
+
+    R = BigInt(0);
+
+    for (int i = size() - 1; i >= 0; i--){
+        if (!(R.isZero())) R = R<<1;
+        R.d[0] = d[i];
+
+        int div = 0;
+        while (R >= abs(D)){
+            R = R - abs(D);
+            div = div + 1;
+        }
+
+        if (!(Q.isZero())) Q = Q<<1;
+        Q.d[0] = div;
+    }
+
+    Q.neg = (isNeg() != D.isNeg());
+    if (!(R.isZero())) R.neg = isNeg();
 }
 
 BigInt abs(const BigInt& B){
