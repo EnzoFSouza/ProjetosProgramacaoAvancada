@@ -1,96 +1,238 @@
 #include <iostream>
-#include <cstdlib>
-#include <ctime>
+#include <iomanip>
+#include <string>
 #include "bigint.h"
+
+///
+/// ESTE ARQUIVO NAO DEVE SER ALTERADO
+///
 
 using namespace std;
 
-int main(void)
+enum class Opcoes_t
 {
-  BigInt BI0(0), BI1(1), BIm1(-1),
-         BIbig(1234567890), BImbig(-1234567890), BIbig1(1234567891);
+  NUMERO_JA_DIGITADO,
+  DIGITAR_NUMERO,
+  SOMAR,
+  SUBTRAIR,
+  MULTIPLICAR,
+  DIVIDIR_QUOCIENTE,
+  DIVIDIR_RESTO,
+  DIVIDIR_AMBOS,
+  FATORIAL,
+  ROTACIONAR_ESQUERDA,
+  ROTACIONAR_DIREITA,
+  INCREMENTAR,
+  DECREMENTAR,
+  INVERTER_SINAL,
+  MODULO,
+  TROCAR,
+  AJUDA,
+  TERMINAR,
+  OPCAO_INVALIDA
+};
 
-  cout << "CONFIRA SE OS DESLOCAMENTOS CALCULADOS PELO PROGRAMA ESTAO CORRETOS\n\n";
+void help()
+{
+  cout << "\nOPCOES:\n";
+  cout << "Digite valor [novo Result <- BigInt(string)]\n";
+  cout << "<   - Entrar um novo numero [novo Result <- operator>>]\n";
+  cout << "+   - Somar os numeros [novo Result <- I3+Result]\n";
+  cout << "-   - Subtrair os numeros [novo Result <- I3-Result]\n";
+  cout << "*   - Multiplicar os numeros [novo Result <- I3*Result]\n";
+  cout << "/   - Dividir os numeros [novo Result <- I3/Result]\n";
+  cout << "%   - Dividir os numeros [novo Result <- I3%Result]\n";
+  cout << "div - Dividir os numeros [novo I3 <- I3/Result; novo Result <- I3%Result]\n";
+  cout << "!   - Fatorial do numero [novo Result <- !Result]\n";
+  cout << "<<  - Rotacionar para esquerda [novo Result <- I3 << Result]\n";
+  cout << ">>  - Rotacionar para direita [novo Result <- I3 >> Result]\n";
+  cout << "++  - Incrementar numero [++Result]\n";
+  cout << "--  - Decrementar numero [--Result]\n";
+  cout << "inv - Inverter o sinal do numero [novo Result <- -Result]\n";
+  cout << "abs - Calcular o modulo do numero [novo Result <- abs(Result)]\n";
+  cout << "t   - Trocar os numeros [I1->I2  I2->I3  I3->Result  Result->I1]\n";
+  cout << "h   - Imprimir ajuda\n";
+  cout << "q   - Terminar\n";
+}
 
-  // Teste do deslocamento aa esquerda
-  cout << "\nTESTE DO DESLOCAMENTO AA ESQUERDA:\n";
-  cout << "I01:\t" << "BI=" << BI0 << "\tBI<<3=" << (BI0<<3) << endl;
-  cout << "I02:\t" << "BI=" << BI1 << "\tBI<<3=" << (BI1<<3) << endl;
-  cout << "I03:\t" << "BI=" << BIm1 << "\tBI<<3=" << (BIm1<<3) << endl;
-  cout << "I04:\t" << "BI=" << BIbig << "\tBI<<-1=" << (BIbig<<-1) << endl;
-  cout << "I05:\t" << "BI=" << BIbig << "\tBI<<0=" << (BIbig<<0) << endl;
-  cout << "I06:\t" << "BI=" << BIbig << "\tBI<<3=" << (BIbig<<3) << endl;
-  cout << "I07:\t" << "BI=" << BImbig << "\tBI<<3=" << (BImbig<<3) << endl;
-
-  // Teste do deslocamento aa direita
-  cout << "\nTESTE DO DESLOCAMENTO AA DIREITA:\n";
-  cout << "I08:\t" << "BI=" << BI0 << "\tBI>>3=" << (BI0>>3) << endl;
-  cout << "I09:\t" << "BI=" << BI1 << "\tBI>>3=" << (BI1>>3) << endl;
-  cout << "I10:\t" << "BI=" << BIm1 << "\tBI>>3=" << (BIm1>>3) << endl;
-  cout << "I11:\t" << "BI=" << BIbig << "\tBI>>-1=" << (BIbig>>-1) << endl;
-  cout << "I12:\t" << "BI=" << BIbig << "\tBI>>0=" << (BIbig>>0) << endl;
-  cout << "I13:\t" << "BI=" << BIbig << "\tBI>>3=" << (BIbig>>3) << endl;
-  cout << "I14:\t" << "BI=" << BIbig << "\tBI>>10=" << (BIbig>>10) << endl;
-  cout << "I15:\t" << "BI=" << BImbig << "\tBI>>3=" << (BImbig>>3) << endl;
-
-  BigInt A,B,Q,R;
-
-  cout << "\n\nCONFIRA SE AS DIVISOES CALCULADAS PELO PROGRAMA ESTAO CORRETAS\n\n";
-
-  // Testando funcao de divisao
-  cout << "\nFUNCAO DIVISION:\n";
-  A = 1;
-  srand(time(nullptr));
-  for (int i=0; i<15; ++i)
+const string tamanho(const BigInt& BI)
+{
+  string txt=" (";
+  if (BI.isZero()) txt += "zero";
+  else
   {
-    A = (A<<1) + rand()%10;
-    B = rand();
-    A.division(B,Q,R);
-    cout << "I" << 16+i << ":\t" << A << '/' << B << " = " << Q << " resto " << R
-         << '\t' << ((Q*B+R == A) ? "OK" : "ERRO") << endl;
+    txt += to_string(BI.size()) + " digito";
+    if (BI.size()>1) txt += 's';
   }
+  txt += ')';
+  return move(txt);
+}
 
-  // Testando operadores de divisao
-  cout << "\nOPERADORES DE DIVISAO:\n";
+int main()
+{
+  BigInt I1, I2, I3, Result;
+  string opcao_txt("");
+  Opcoes_t opcao = Opcoes_t::OPCAO_INVALIDA;
 
-  // Envolvendo nulos
-  A = 0;
-  B = 0;
-  cout << "I31:\t" << "(" << A << ")/(" << B << ")="<< A/B << " resto=" << A%B << endl;
-  A = 0;
-  B = 123;
-  cout << "I32:\t" << "(" << A << ")/(" << B << ")="<< A/B << " resto=" << A%B << endl;
-  A = 123;
-  B = 0;
-  cout << "I33:\t" << "(" << A << ")/(" << B << ")="<< A/B << " resto=" << A%B << endl;
-  A = 0;
-  B = -123;
-  cout << "I34:\t" << "(" << A << ")/(" << B << ")="<< A/B << " resto=" << A%B << endl;
-  A = -123;
-  B = 0;
-  cout << "I35:\t" << "(" << A << ")/(" << B << ")="<< A/B << " resto=" << A%B << endl;
+  cout << "CALCULADORA DE INTEIROS SEM LIMITE\n";
+  help();
 
-  // Dois numeros nao negativos, dividendo modulo menor que o divisor
-  A = 10000;
-  B = 98765;
-  cout << "I36:\t" << "(" << A << ")/(" << B << ")="<< A/B << " resto=" << A%B << endl;
-  // Dois numeros nao negativos, dividendo modulo maior que o divisor
-  A = 1000000000000;
-  B = 98765;
-  cout << "I37:\t" << "(" << A << ")/(" << B << ")="<< A/B << " resto=" << A%B << endl;
-  // Dois numeros negativos
-  A = -123456700;
-  B = -12345;
-  cout << "I38:\t" << "(" << A << ")/(" << B << ")="<< A/B << " resto=" << A%B << endl;
-  // Primeiro numero nao negativo, segundo negativo
-  A = 123456;
-  B = -1234;
-  cout << "I39:\t" << "(" << A << ")/(" << B << ")="<< A/B << " resto=" << A%B << endl;
-  // Primeiro numero negativo, segundo nao negativo
-  A = -123450000;
-  B = 12345;
-  cout << "I40:\t" << "(" << A << ")/(" << B << ")="<< A/B << " resto=" << A%B << endl;
+  do
+  {
+    cout << "\nI1:     " << I1 << tamanho(I1) << endl;
+    cout << "I2:     " << I2 << tamanho(I2) << endl;
+    if (opcao == Opcoes_t::DIVIDIR_AMBOS) cout << setw(7) << opcao_txt << " =====\n";
+    cout << "I3:     " << I3 << tamanho(I3) << endl;
+    if (opcao != Opcoes_t::NUMERO_JA_DIGITADO &&
+        opcao != Opcoes_t::DIGITAR_NUMERO &&
+        opcao != Opcoes_t::DIVIDIR_AMBOS &&
+        opcao != Opcoes_t::TROCAR &&
+        opcao != Opcoes_t::AJUDA &&
+        opcao != Opcoes_t::OPCAO_INVALIDA) cout << setw(7) << opcao_txt << " =====\n";
+    cout << "Result: " << Result << tamanho(Result) << endl;
+
+    // Solicita a opcao
+    do
+    {
+      cout << "Digite sua opcao [h para ajuda]: ";
+      cin >> opcao_txt;
+    }
+    while (opcao_txt.empty());
+
+    // Converte caracteres para minusculas
+    for (auto& c : opcao_txt) c = tolower(c);
+    // Inicialmente, supoe opcao invalida;
+    opcao = Opcoes_t::OPCAO_INVALIDA;
+    // Determina a opcao digitada
+    if (opcao_txt=="<") opcao = Opcoes_t::DIGITAR_NUMERO;
+    else if (opcao_txt=="+") opcao = Opcoes_t::SOMAR;
+    else if (opcao_txt=="-") opcao = Opcoes_t::SUBTRAIR;
+    else if (opcao_txt=="*") opcao = Opcoes_t::MULTIPLICAR;
+    else if (opcao_txt=="/") opcao = Opcoes_t::DIVIDIR_QUOCIENTE;
+    else if (opcao_txt=="%") opcao = Opcoes_t::DIVIDIR_RESTO;
+    else if (opcao_txt=="div") opcao = Opcoes_t::DIVIDIR_AMBOS;
+    else if (opcao_txt=="!") opcao = Opcoes_t::FATORIAL;
+    else if (opcao_txt=="<<") opcao = Opcoes_t::ROTACIONAR_ESQUERDA;
+    else if (opcao_txt==">>") opcao = Opcoes_t::ROTACIONAR_DIREITA;
+    else if (opcao_txt=="++") opcao = Opcoes_t::INCREMENTAR;
+    else if (opcao_txt=="--") opcao = Opcoes_t::DECREMENTAR;
+    else if (opcao_txt=="inv") opcao = Opcoes_t::INVERTER_SINAL;
+    else if (opcao_txt=="abs") opcao = Opcoes_t::MODULO;
+    else if (opcao_txt=="t") opcao = Opcoes_t::TROCAR;
+    else if (opcao_txt=="h") opcao = Opcoes_t::AJUDA;
+    else if (opcao_txt=="q") opcao = Opcoes_t::TERMINAR;
+
+    // Testa se foi digitado um numero em potencial
+    if (opcao == Opcoes_t::OPCAO_INVALIDA)
+    {
+      if (isdigit(opcao_txt[0]) ||
+          ((opcao_txt[0]=='+' || opcao_txt[0]=='-') && opcao_txt.size()>1 && isdigit(opcao_txt[1])))
+      {
+        opcao = Opcoes_t::NUMERO_JA_DIGITADO;
+      }
+    }
+
+    // Nao rotaciona nada se for incrementar, decrementar, ajuda, sair ou opcao desconhecida
+    if (opcao!=Opcoes_t::INCREMENTAR &&
+        opcao!=Opcoes_t::DECREMENTAR &&
+        opcao!=Opcoes_t::AJUDA &&
+        opcao!=Opcoes_t::TERMINAR &&
+        opcao!=Opcoes_t::OPCAO_INVALIDA)
+    {
+      // Rotaciona os numeros no buffer
+      if (opcao==Opcoes_t::TROCAR)
+      {
+        // Rotaciona no sentido inverso
+        BigInt prov(move(Result));
+        Result = move(I3);
+        I3 = move(I2);
+        I2 = move(I1);
+        I1 = move(prov);
+      }
+      else
+      {
+        // Todas as demais opcoes: rotaciona normalmente
+        I1 = move(I2);
+        I2 = move(I3);
+        I3 = move(Result);
+        // Novo resultado entra em result
+      }
+    }
+
+    // Executa a opcao escolhida
+    switch(opcao)
+    {
+    case Opcoes_t::NUMERO_JA_DIGITADO:
+      // Usa construtor a partir de string.
+      // Se string invalida, imprime msg de erro e faz ser zero.
+      Result = BigInt(opcao_txt);
+      break;
+    case Opcoes_t::DIGITAR_NUMERO:
+      // Usa operador de extracao operator>>
+      cout << "Valor: ";
+      cin >> Result;
+      if (cin.fail())
+      {
+        cerr << "Valor digitado invalido\n";
+        cin.clear();
+      }
+      break;
+    case Opcoes_t::SOMAR:
+      Result = I2+I3;
+      break;
+    case Opcoes_t::SUBTRAIR:
+      Result = I2-I3;
+      break;
+    case Opcoes_t::MULTIPLICAR:
+      Result = I2*I3;
+      break;
+    case Opcoes_t::DIVIDIR_QUOCIENTE:
+      Result = I2/I3;
+      break;
+    case Opcoes_t::DIVIDIR_RESTO:
+      Result = I2%I3;
+      break;
+    case Opcoes_t::DIVIDIR_AMBOS:
+      // Roda mais uma vez
+      I1 = move(I2);
+      I2 = move(I3);
+      // Resultados da divisao em I3 e Result
+      I1.division(I2,I3,Result);
+      break;
+    case Opcoes_t::FATORIAL:
+      Result = !I3;
+      break;
+    case Opcoes_t::ROTACIONAR_ESQUERDA:
+      Result = I2 << I3.toInt();
+      break;
+    case Opcoes_t::ROTACIONAR_DIREITA:
+      Result = I2 >> I3.toInt();
+      break;
+    case Opcoes_t::INCREMENTAR:
+      ++Result;
+      break;
+    case Opcoes_t::DECREMENTAR:
+      --Result;
+      break;
+    case Opcoes_t::INVERTER_SINAL:
+      Result = -I3;
+      break;
+    case Opcoes_t::MODULO:
+      Result = abs(I3);
+      break;
+    case Opcoes_t::AJUDA:
+      help();
+      break;
+    case Opcoes_t::TROCAR:
+    case Opcoes_t::TERMINAR:
+      break;
+    case Opcoes_t::OPCAO_INVALIDA:
+    default:
+      cerr << "Opcao (" << opcao_txt << ") desconhecida\n";
+      break;
+    }
+  }
+  while (opcao != Opcoes_t::TERMINAR);
 
   return 0;
 }
-
