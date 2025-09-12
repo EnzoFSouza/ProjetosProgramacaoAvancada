@@ -269,6 +269,142 @@ BigInt BigInt::operator--(int){
     return prov; //retorna o prov
 }
 
+const BigInt& BigInt::operator+() const{
+    return *this;
+}
+
+BigInt BigInt::operator-() const{
+    if((isNeg() == false) && (size() == 1) && (d[0] == 0)){
+        return BigInt(0); //criando um bigint q vale 0 e retornando ele
+    }
+
+    BigInt prov = *this; //criando copia
+    prov.neg = !isNeg(); //alterando sinal
+    return prov;
+}
+
+BigInt BigInt::operator+(const BigInt& B) const{
+    BigInt prov = *this;
+
+    if(isNeg() == B.isNeg()){
+        BigInt C(isNeg(), 1 + max(size(), B.size()));
+        int carry = 0;
+        for (int i = 0; i <= C.size() - 1; i++){
+            C.d[i] = prov[i] + B[i] + carry;
+            if(C.d[i] > 9){
+                C.d[i] -= 10;
+                carry = 1;
+            }
+            else{
+                carry = 0;
+            }
+        }
+        C.correct();
+        return C;
+    }
+    else{ //sinais diferentes
+        if(abs(*this) >= abs(B)){
+            BigInt C(isNeg(), size());
+            int borrow = 0;
+            for (int i = 0; i <= C.size() - 1; i++){
+                C.d[i] = prov[i] - B[i] - borrow;
+                if (C.d[i] < 0){
+                    C.d[i] += 10;
+                    borrow = 1;
+                }
+                else{
+                    borrow = 0;
+                }
+            }
+            C.correct();
+            return C;
+        }
+        else{
+            return B + *this;
+        }
+    }
+}
+
+BigInt BigInt::operator-(const BigInt& B) const{
+    return *this + (-B);
+}
+
+BigInt BigInt::operator*(const BigInt& B) const{
+    if ((isZero()) || (B.isZero())) return BigInt(0);
+
+    BigInt C(!(isNeg() == B.isNeg()), size() + B.size());
+
+    for (int i = 0; i <= size() - 1; i++){
+        if (d[i] != 0){
+            for (int j = 0; j <= B.size() - 1; j++){
+                if (B.d[j] != 0){
+                    int k = i + j;
+                    C.d[k] = C.d[k] + (d[i] * B.d[j]);
+                    while (C.d[k] > 9){
+                        int carry = C.d[k] / 10;
+                        C.d[k] = C.d[k] % 10;
+                        k = k + 1;
+                        C.d[k] = C.d[k] + carry;
+                    }
+                }
+            }
+        }
+    }
+    C.correct();
+    return C;
+}
+
+BigInt BigInt::operator!() const{
+    if(isNeg()){
+        cerr << "Nao pode calcular fatorial de numero negativo";
+        return BigInt(0);
+    }
+
+    BigInt prov = *this;
+    BigInt C(1);
+
+    for (BigInt N(2); N <= prov; N++){
+        C = C * N;
+    }
+
+    return C;
+}
+
+BigInt BigInt::operator<<(int n) const{
+    if((n <= 0) || (isZero())) return *this;
+
+    BigInt C(isNeg(), size() + n);
+
+    for (int i = 0; i <= C.size() - 1; i++){
+        if (i < n) C.d[i] = 0;
+        else C.d[i] = d[i - n];
+    }
+
+    return C;
+}
+
+BigInt BigInt::operator>>(int n) const{
+    if ((n <= 0) || (isZero())) return *this;
+    if (n >= size()) return BigInt(0);
+
+    BigInt C(isNeg(), size() - n);
+
+    for (int i = 0; i <= C.size() - 1; i++) C.d[i] = d[i + n];
+    return C;
+}
+
+const BigInt BigInt::operator/(BigInt& D) const{
+    BigInt Q, R;
+    division(D, Q, R);
+    return Q;
+}
+
+const BigInt BigInt::operator%(BigInt& D) const{
+    BigInt Q, R;
+    division(D, Q, R);
+    return R;
+}
+
 //Imprimindo BigInt
 ostream& operator<<(ostream& O, const BigInt& B){
     if (B.isNeg()){
@@ -412,7 +548,40 @@ void BigInt::decrement(){
     }
 }
 
-BigInt& abs(BigInt& B){
-    if(B.neg) B.neg = false;
-    return B;
+void BigInt::division(const BigInt& D, BigInt& Q, BigInt& R) const{
+    Q = BigInt(0);
+    if ((isZero()) || (D.isZero())){
+        if (D.isZero()) cerr << "Erro: Divisao por zero";
+        R = BigInt(0);
+        return;
+    }
+    if (abs(*this) < abs(D)){
+        R = *this;
+        return;
+    }
+
+    R = BigInt(0);
+
+    for (int i = size() - 1; i >= 0; i--){
+        if (!(R.isZero())) R = R<<1;
+        R.d[0] = d[i];
+
+        int div = 0;
+        while (R >= abs(D)){
+            R = R - abs(D);
+            div = div + 1;
+        }
+
+        if (!(Q.isZero())) Q = Q<<1;
+        Q.d[0] = div;
+    }
+
+    Q.neg = (isNeg() != D.isNeg());
+    if (!(R.isZero())) R.neg = isNeg();
+}
+
+BigInt abs(const BigInt& B){
+    BigInt modulo(false, B.size());
+    for (int i = 0; i < B.size(); i++) modulo.d[i] = B.d[i];
+    return modulo;
 }
