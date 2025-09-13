@@ -56,7 +56,7 @@ class BigInt{
         const BigInt& operator+() const; //operator + unario
         BigInt operator-() const; //operator - unario
         BigInt operator+(const BigInt& B) const; //operator + binario
-        BigInt operator-(const BigInt& B) const; //operator - binario
+        BigInt operator-(const BigInt& B) const {return *this + (-B);} //operator - binario
         BigInt operator*(const BigInt& B) const; //operator * binario
         BigInt operator!() const; //operator ! unario
         BigInt operator<<(int n) const;
@@ -69,9 +69,9 @@ class BigInt{
 
         //Funcoes de consulta
         //o terceiro const indica que o metodo nao pode alterar o objeto no qual e chamado
-        bool isNeg() const;
-        int size() const;
-        bool isZero() const;
+        bool isNeg() const {return neg;}
+        int size() const {return nDig;}
+        bool isZero() const {return nDig == 1 && d[0] == 0;}
 
         long long int toInt();
         void division(const BigInt& D, BigInt& Q, BigInt& R) const;

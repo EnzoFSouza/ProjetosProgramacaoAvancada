@@ -9,10 +9,7 @@ using namespace std;
 //Construtores e Destrutores
 //-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 //Construtor default
-BigInt::BigInt(){
-    neg = false;
-    nDig = 1;
-    d = new int8_t[1]; //Alocando espaco para 1 digito, ponteiro passa a apontar para local válido
+BigInt::BigInt() : neg(false), nDig(1), d(new int8_t[1]){
     d[0] = 0;
 }
 
@@ -51,14 +48,9 @@ BigInt::BigInt(bool isNeg, int tamanho){
 }
 
 //Construtor específico 2: a partir de long long int
-BigInt::BigInt(long long int N){
-    if (N == 0){
-        neg = false;
-        nDig = 1;
-        d = new int8_t[1]; //Alocando espaco para 1 digito, ponteiro passa a apontar para local válido
-        d[0] = 0;
-        //Se usar BigInt() dá bug
-    }
+BigInt::BigInt(long long int N) : BigInt() {
+    //ja eh zero pelo default
+    if (N == 0) return;
 
     else if(N < 0){
         neg = true;
@@ -83,22 +75,20 @@ BigInt::BigInt(long long int N){
 }
 
 //Construtor específico 3: a partir de string
-BigInt::BigInt(string S){
-    neg = false;
-    nDig = 1;
-    d = new int8_t[1];
-    d[0] = 0;
+BigInt::BigInt(string S) : BigInt(){
+
+    //incializado como zero
 
     //string invalida
     if (S.empty()) {
-        cerr << "Erro na string";
+        cerr << "String invalida";
         return;
     }
 
     int inicio = 0;
     if((S[0] == '+') || (S[0] == '-')){
         if(S.size() == 1){ //Só tem o sinal
-            cerr << "Erro na string";
+            cerr << "String invalida";
             return;
         }
         if(S[0] == '-') neg = true;
@@ -108,7 +98,6 @@ BigInt::BigInt(string S){
 
     neg = isNeg();
     nDig = S.size() - inicio;
-    //BigInt(neg, nDig);
     d = new int8_t[nDig];
 
     for(int i = 0; i <= size() - 1; ++i){
@@ -122,7 +111,7 @@ BigInt::BigInt(string S){
            nDig = 1;
            d = new int8_t[1];
            d[0] = 0;
-           cerr << "Erro na string";
+           cerr << "String invalida";
            return;
         }
 
@@ -133,8 +122,6 @@ BigInt::BigInt(string S){
 
 // Destrutor
 BigInt::~BigInt(){
-    nDig = 0;
-    neg = false;
     delete[] d;
     d = nullptr;
 }
@@ -255,17 +242,13 @@ BigInt& BigInt::operator--(){
 
 BigInt BigInt::operator++(int){
     BigInt prov = *this; //criando copia
-    //*this++; //incrementando o this
-    if(!isNeg()) increment();
-    else decrement();
+    ++*this; //incrementando o this
     return prov; //retorna o prov
 }
 
 BigInt BigInt::operator--(int){
     BigInt prov = *this; //criando copia
-    //*this--; //decrementando o this
-    if(isNeg()) increment();
-    else decrement();
+    --*this; //decrementando o this
     return prov; //retorna o prov
 }
 
@@ -274,9 +257,7 @@ const BigInt& BigInt::operator+() const{
 }
 
 BigInt BigInt::operator-() const{
-    if((isNeg() == false) && (size() == 1) && (d[0] == 0)){
-        return BigInt(0); //criando um bigint q vale 0 e retornando ele
-    }
+    if(isZero()) return BigInt(); //criando um bigint q vale 0 e retornando ele
 
     BigInt prov = *this; //criando copia
     prov.neg = !isNeg(); //alterando sinal
@@ -325,12 +306,8 @@ BigInt BigInt::operator+(const BigInt& B) const{
     }
 }
 
-BigInt BigInt::operator-(const BigInt& B) const{
-    return *this + (-B);
-}
-
 BigInt BigInt::operator*(const BigInt& B) const{
-    if ((isZero()) || (B.isZero())) return BigInt(0);
+    if ((isZero()) || (B.isZero())) return BigInt();
 
     BigInt C(!(isNeg() == B.isNeg()), size() + B.size());
 
@@ -356,14 +333,13 @@ BigInt BigInt::operator*(const BigInt& B) const{
 
 BigInt BigInt::operator!() const{
     if(isNeg()){
-        cerr << "Nao pode calcular fatorial de numero negativo";
-        return BigInt(0);
+        cerr << "Fatorial de numero negativo";
+        return BigInt();
     }
 
-    BigInt prov = *this;
     BigInt C(1);
 
-    for (BigInt N(2); N <= prov; N++){
+    for (BigInt N(2); N <= *this; N++){
         C = C * N;
     }
 
@@ -453,30 +429,11 @@ istream& operator>>(istream& I, BigInt& B){
 }
 //-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
-//Funcoes de Consulta
-//-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-bool BigInt::isNeg() const{
-    return neg;
-}
-
-int BigInt::size() const{
-    return nDig;
-}
-
-bool BigInt::isZero() const{
-    if ((nDig == 1) && (d[0] == 0)) return true;
-    return false;
-}
-//-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-
 //Funcoes Suporte
 //-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 void BigInt::correct(){
     if((size() <= 0) || (d == nullptr)){
-        neg = false;
-        nDig = 1;
-        d = new int8_t[nDig];
-        d[0] = 0;
+        *this = BigInt();
         return;
     }
 
@@ -551,7 +508,7 @@ void BigInt::decrement(){
 void BigInt::division(const BigInt& D, BigInt& Q, BigInt& R) const{
     Q = BigInt(0);
     if ((isZero()) || (D.isZero())){
-        if (D.isZero()) cerr << "Erro: Divisao por zero";
+        if (D.isZero()) cerr << "Divisao por zero";
         R = BigInt(0);
         return;
     }
