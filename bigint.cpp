@@ -48,11 +48,14 @@ BigInt::BigInt(bool isNeg, int tamanho){
 }
 
 //Construtor específico 2: a partir de long long int
-BigInt::BigInt(long long int N) : BigInt() {
+BigInt::BigInt(long long int N) : neg(false), nDig(1), d(new int8_t[1]){
+    d[0] = 0;
     //ja eh zero pelo default
     if (N == 0) return;
 
-    else if(N < 0){
+    delete[] d;
+
+    if(N < 0){
         neg = true;
         nDig = 1 + log10(fabs(N));
         d = new int8_t[nDig];
@@ -75,9 +78,9 @@ BigInt::BigInt(long long int N) : BigInt() {
 }
 
 //Construtor específico 3: a partir de string
-BigInt::BigInt(string S) : BigInt(){
-
-    //incializado como zero
+BigInt::BigInt(string S) : neg(false), nDig(1), d(new int8_t[1]){
+    d[0] = 0;
+    //ja eh incializado como zero
 
     //string invalida
     if (S.empty()) {
@@ -95,6 +98,8 @@ BigInt::BigInt(string S) : BigInt(){
         else neg = false;
         inicio = 1;
     }
+
+    delete[] d;
 
     neg = isNeg();
     nDig = S.size() - inicio;
