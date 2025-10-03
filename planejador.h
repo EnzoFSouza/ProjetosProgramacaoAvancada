@@ -108,6 +108,7 @@ struct Ponto
   // Sobrecarga de operadores
   // Utilizados pelos algoritmos STL
   bool operator==(const Ponto& P) const;
+  bool operator==(const IDPonto& idP) const;
   /* ***********  /
   /  FALTA FAZER  /
   /  *********** */
@@ -143,6 +144,7 @@ struct Rota
 
   // Sobrecarga de operadores
   // Utilizados pelos algoritmos STL
+  bool operator==(const Rota& R) const;
   /* ***********  /
   /  FALTA FAZER  /
   /  *********** */

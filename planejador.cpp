@@ -3,7 +3,6 @@
 #include <fstream>
 #include <limits>
 /* ACRESCENTE SE NECESSARIO */
-#include <iostream>
 #include <algorithm> //para find
 #include <vector>
 #include <exception>
@@ -55,7 +54,11 @@ bool Ponto::operator==(const Ponto& P) const{
     if ((P.latitude != latitude) || (P.longitude != longitude)) return false;
 
     return true;
+}
 
+bool Ponto::operator==(const IDPonto& idP) const{
+    if (idP != id) return false;
+    return true;
 }
 
 /// Distancia entre 2 pontos (formula de haversine)
@@ -100,6 +103,17 @@ ostream& operator<<(ostream& X, const Rota& R)
   return X;
 }
 
+bool Rota::operator==(const Rota& R) const{
+    //Com a mesma id?
+    if (R.id != id) return false;
+    /*if (R.nome != nome) return false;
+    if (R.comprimento != comprimento) return false;
+    for(int i = 0; i < 2; i++){
+        if (R.extremidade[i] != extremidade[i]) return false;
+    }*/
+    return true;
+}
+
 /// Retorna a outra extremidade da rota, a que nao eh o parametro.
 /// Gera excecao se o parametro nao for uma das extremidades da rota.
 /// NAO DEVE SER MODIFICADA
@@ -132,7 +146,10 @@ void Planejador::ler(const std::string& arq_pontos,
     ifstream I;
     // Vetores temporarios para armazenamento dos Pontos e Rotas lidos.
     vector<Ponto> pontos_temp;
-    vector<Ponto>::iterator j;
+    //vector<Ponto>::iterator p;
+
+    vector<Rota> rotas_temp;
+    //vector<Rota>::iterator r;
 
     //Abre arquivo
     I.open(arq_pontos, fstream::in);
@@ -194,33 +211,79 @@ void Planejador::ler(const std::string& arq_pontos,
         cerr << e.what() << arq_pontos;
     }
 
+    //Fecha o arquivo de pontos
     I.close();
-    for(j = pontos_temp.begin(); j != pontos_temp.end(); j++) cout << *j << endl;
 
-  // Leh os Pontos do arquivo e armazena no vetor temporario de Pontos.
-  // 1) Abre o arquivo de Pontos (Em caso de erro, codigo 1)
-  // 2) Leh e testa o cabecalho do arquivo: "ID;Nome;Latitude;Longitude"
-  //    (Em caso de erro, codigo 2)
-  //3) Repita a leitura de cada um dos Pontos:
-  //    | 3.1) Leh a ID (Em caso de erro na leitura, codigo 3)
-  //    | 3.2) Leh o nome (Em caso de erro, codigo 4)
-  //    | 3.3) Leh a latitude (Em caso de erro na leitura, codigo 5)
-  //    | 3.4) Leh a longitude (Em caso de erro na leitura, codigo 6)
-  //    | 3.5) Consome todos os eventuais separadores ateh o inicio do proximo dado
-  //    | 3.6) Testa se o Ponto com esses parametros lidos eh valido
-  //    |      (Em caso de erro, codigo 7)
-  //    | 3.7) Testa que nao existe Ponto com a mesma ID no vetor temporario
-  //    |      de Pontos lidos ateh agora (Em caso de erro, codigo 8)
-  //    | 3.8) Insere o Ponto lido no vetor temporario de Pontos
-  //    enquanto o arquivo não acabar (eof)
-  //    Em caso de qualquer erro, gera excecao ios_base::failure com mensagem:
-  //      "Erro <CODIGO> na leitura do arquivo de pontos <ARQ_PONTOS>"
+    //Abre o arquivo de rotas
+    I.open(arq_rotas, fstream::in);
+
+    try{
+        if(!I.is_open()) throw ios_base::failure("Erro 1 na leitura do arquivo de rotas ");
+
+        string cabecalho;
+
+        // Leitura da primeira linha do arquivo
+        getline(I, cabecalho);  // Leh ateh \n
+        if(I.fail() || cabecalho!="ID;Nome;Extremidade 1;Extremidade 2;Comprimento") throw ios_base::failure("Erro 2 na leitura do arquivo de rotas ");
+
+        bool leitura_ok;
+
+        do{
+            string id;
+            string id1;
+            string id2;
+            Rota prov;
+            IDRota id_prov;
+
+            getline(I, id, ';');
+            prov.id.set(move(id));
+            if (!I) throw ios_base::failure("Erro 3 na leitura do arquivo de rotas ");
+
+            getline(I, prov.nome, ';');
+            if (!I) throw ios_base::failure("Erro 4 na leitura do arquivo de rotas ");
+
+            getline(I, id1, ';');
+            prov.extremidade[0].set(move(id1));
+            if (!I) throw ios_base::failure("Erro 5 na leitura do arquivo de rotas ");
+
+            getline(I, id2, ';');
+            prov.extremidade[1].set(move(id2));
+            if (!I) throw ios_base::failure("Erro 6 na leitura do arquivo de rotas ");
+
+            I >> prov.comprimento;
+            if (!I) throw ios_base::failure("Erro 7 na leitura do arquivo de rotas ");
+
+            I >> ws;
+            leitura_ok = I.good();
+
+            //Testa se rota eh valida
+            if (!prov.valid()) throw ios_base::failure("Erro 8 na leitura do arquivo de rotas ");
+
+            //    | 3.8) Testa que a Id da extremidade[0] corresponde a um ponto lido
+            //    |      no vetor temporario de Pontos (Em caso de erro, codigo 9)
+            if (find(pontos_temp.begin(), pontos_temp.end(), prov.extremidade[0]) == pontos_temp.end()) throw ios_base::failure("Erro 9 na leitura do arquivo de rotas ");
+
+            if (find(pontos_temp.begin(), pontos_temp.end(), prov.extremidade[1]) == pontos_temp.end()) throw ios_base::failure("Erro 10 na leitura do arquivo de rotas ");
+
+            //Testa se rota jah existe
+            //    | 3.10) Testa que nao existe Rota com a mesma ID no vetor temporario
+  //    |      de Rotas lidas ateh agora (Em caso de erro, codigo 11)
+            if (find(rotas_temp.begin(), rotas_temp.end(), prov) != rotas_temp.end()) throw ios_base::failure("Erro 11 na leitura do arquivo de rotas ");
+
+            //Adiciona rota ao vetor temporario
+            rotas_temp.push_back(prov);
 
 
-  // 4) Fecha o arquivo de Pontos
-  /* ***********  /
-  /  FALTA FAZER  /
-  /  *********** */
+        }while (leitura_ok);
+    }
+
+    catch(const ios_base::failure& e){
+        //I.setstate(ios_base::failure);
+        cerr << e.what() << arq_rotas;
+    }
+
+    //Fecha o arquivo de rotas
+    I.close();
 
   // Leh as Rotas do arquivo e armazena no vetor temporario de Rotas.
   // 1) Abre o arquivo de Rotas (Em caso de erro, codigo 1)
@@ -250,8 +313,12 @@ void Planejador::ler(const std::string& arq_pontos,
   /  FALTA FAZER  /
   /  *********** */
 
+    //for(p = pontos_temp.begin(); p != pontos_temp.end(); p++) cout << *p << endl;
+    //for(r = rotas_temp.begin(); r != rotas_temp.end(); r++) cout << *r << endl;
   // Faz os vetores temporarios de Pontos e Rotas passarem a ser
   // os vetores de Pontos e Rotas do planejador.
+  pontos = move(pontos_temp);
+  rotas = move(rotas_temp);
   /* ***********  /
   /  FALTA FAZER  /
   /  *********** */
