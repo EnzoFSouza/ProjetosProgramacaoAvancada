@@ -3,7 +3,10 @@
 #include <fstream>
 #include <limits>
 /* ACRESCENTE SE NECESSARIO */
+#include <iostream>
+#include <algorithm> //para find
 #include <vector>
+#include <exception>
 
 #include "planejador.h"
 
@@ -43,6 +46,16 @@ ostream& operator<<(ostream& X, const Ponto& P)
 {
   X << P.id << '\t' << P.nome << " (" <<P.latitude << ',' << P.longitude << ')';
   return X;
+}
+
+//Sobrecarga de operadores
+bool Ponto::operator==(const Ponto& P) const{
+    if (P.id != id) return false;
+    if (P.nome != nome) return false;
+    if ((P.latitude != latitude) || (P.longitude != longitude)) return false;
+
+    return true;
+
 }
 
 /// Distancia entre 2 pontos (formula de haversine)
@@ -121,16 +134,17 @@ void Planejador::ler(const std::string& arq_pontos,
     vector<Ponto> pontos_temp;
     vector<Ponto>::iterator j;
 
+    //Abre arquivo
+    I.open(arq_pontos, fstream::in);
+
     try{
-        //Abre arquivo
-        I.open(arq_pontos, fstream::in);
-        if(!I.is_open()) throw 1;
+        if(!I.is_open()) throw ios_base::failure("Erro 1 na leitura do arquivo de pontos ");
 
         string cabecalho;
 
         // Leitura da primeira linha do arquivo
         getline(I, cabecalho);  // Leh ateh \n
-        if(I.fail() || cabecalho!="ID;Nome;Latitude;Longitude") throw 2;
+        if(I.fail() || cabecalho!="ID;Nome;Latitude;Longitude") throw ios_base::failure("Erro 2 na leitura do arquivo de pontos ");
 
         bool leitura_ok;
 
@@ -141,38 +155,47 @@ void Planejador::ler(const std::string& arq_pontos,
 
             getline(I, id, ';');
             prov.id.set(move(id));
-            if (!I || prov.id==id_prov) throw 3;
-            cout << prov.id;
+            if (!I) throw ios_base::failure("Erro 3 na leitura do arquivo de pontos ");
+            //cout << prov.id;
 
             getline(I, prov.nome, ';');
-            if (!I || prov.nome=="") throw 4;
-            cout << prov.nome;
+            if (!I) throw ios_base::failure("Erro 4 na leitura do arquivo de pontos ");
+            //cout << prov.nome;
 
             I >> prov.latitude;
-            if (!I || prov.latitude==0) throw 5;
-            cout << prov.latitude;
+            if (!I) throw ios_base::failure("Erro 5 na leitura do arquivo de pontos ");
+            //cout << prov.latitude;
 
             getline(I, id, ';'); //Na leitura da latitude, cin nao consome o ; e o cin da longitude da erro pois consome
             //o ; mas longitude eh double
 
             I >> prov.longitude;
-            if (!I || prov.longitude==0) throw 6;
-            cout << prov.longitude;
+            if (!I) throw ios_base::failure("Erro 6 na leitura do arquivo de pontos ");
+            //cout << prov.longitude;
 
             I >> ws;
             leitura_ok = I.good();
 
+            //Testa se ponto eh valido
+            if (!prov.valid()) throw ios_base::failure("Erro 7 na leitura do arquivo de pontos ");
+
+            //Testa se ponto jah existe
+            if (find(pontos_temp.begin(), pontos_temp.end(), prov) != pontos_temp.end()) throw ios_base::failure("Erro 8 na leitura do arquivo de pontos ");
+
+            //Adiciona ponto ao vetor temporario
             pontos_temp.push_back(prov);
+
 
         }while (leitura_ok);
     }
 
-    catch(int i){
-        I.setstate(ios::failbit);
-        cerr << "Erro " << i << " na leitura do arquivo de pontos " << arq_pontos;
+    catch(const ios_base::failure& e){
+        //I.setstate(ios_base::failure);
+        cerr << e.what() << arq_pontos;
     }
 
-    for(j = pontos_temp.begin(); j != pontos_temp.end(); j++) cout << *j << "Vetor";
+    I.close();
+    for(j = pontos_temp.begin(); j != pontos_temp.end(); j++) cout << *j << endl;
 
   // Leh os Pontos do arquivo e armazena no vetor temporario de Pontos.
   // 1) Abre o arquivo de Pontos (Em caso de erro, codigo 1)

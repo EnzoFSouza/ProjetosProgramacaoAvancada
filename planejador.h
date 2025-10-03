@@ -107,6 +107,7 @@ struct Ponto
 
   // Sobrecarga de operadores
   // Utilizados pelos algoritmos STL
+  bool operator==(const Ponto& P) const;
   /* ***********  /
   /  FALTA FAZER  /
   /  *********** */
