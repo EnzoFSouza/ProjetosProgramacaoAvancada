@@ -145,6 +145,7 @@ struct Rota
   // Sobrecarga de operadores
   // Utilizados pelos algoritmos STL
   bool operator==(const Rota& R) const;
+  bool operator==(const IDRota& idR) const;
   /* ***********  /
   /  FALTA FAZER  /
   /  *********** */
@@ -245,5 +246,20 @@ public:
                         const IDPonto& id_destino,
                         Caminho& C, int& NumAberto, int& NumFechado);
 };
+
+//Classe Noh
+
+class Noh{
+private:
+
+public:
+    IDPonto id_pt;
+    IDRota id_rt;
+    double g;
+    double h;
+    double f;
+
+};
+
 
 #endif // _PLANEJADOR_H_

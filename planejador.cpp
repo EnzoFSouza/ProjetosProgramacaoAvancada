@@ -114,6 +114,10 @@ bool Rota::operator==(const Rota& R) const{
     return true;
 }
 
+bool Rota::operator==(const IDRota& idR) const{
+    if (id != idR) return false;
+    return true;
+}
 /// Retorna a outra extremidade da rota, a que nao eh o parametro.
 /// Gera excecao se o parametro nao for uma das extremidades da rota.
 /// NAO DEVE SER MODIFICADA
@@ -169,6 +173,8 @@ void Planejador::ler(const std::string& arq_pontos,
             string id;
             Ponto prov;
             IDPonto id_prov;
+
+            I >> ws;
 
             getline(I, id, ';');
             prov.id.set(move(id));
@@ -234,6 +240,8 @@ void Planejador::ler(const std::string& arq_pontos,
             string id2;
             Rota prov;
             IDRota id_prov;
+
+            I >> ws;
 
             getline(I, id, ';');
             prov.id.set(move(id));
@@ -330,15 +338,28 @@ void Planejador::ler(const std::string& arq_pontos,
 Ponto Planejador::getPonto(const IDPonto& Id) const
 {
   // Procura um ponto que corresponde aa Id do parametro
+  //vector<Ponto>::iterator p;
+
+    //for(p = pontos_temp.begin(); p != pontos_temp.end(); p++) cout << *p << endl;
+    try{
+        if(find(pontos.begin(), pontos.end(), Id) == pontos.end()) throw invalid_argument("getPonto: invalid IDPonto parameter");
+        return *find(pontos.begin(), pontos.end(), Id);
+    }
+
   /* ***********  /
   /  FALTA FAZER  /
   /  *********** */
+    //existe ponto
+
   // Em caso de sucesso, retorna o ponto encontrado
   /* ***********  /
   /  FALTA FAZER  /
   /  *********** */
   // Se nao encontrou, gera excecao
-  throw invalid_argument("getPonto: invalid IDPonto parameter");
+    catch(exception& e){
+        cerr << "Nao existe ponto correpondente";
+    }
+
 }
 
 /// Retorna um Rota do mapa, passando a id como parametro.
@@ -347,6 +368,16 @@ Ponto Planejador::getPonto(const IDPonto& Id) const
 Rota Planejador::getRota(const IDRota& Id) const
 {
   // Procura uma rota que corresponde aa Id do parametro
+    try{
+        if(find(rotas.begin(), rotas.end(), Id) == rotas.end()) throw invalid_argument("getRota: invalid IDRota parameter");
+        return *find(rotas.begin(), rotas.end(), Id);
+    }
+
+    catch(exception& e){
+        cerr << "Nao existe rota correpondente";
+    }
+    //existe rota
+
   /* ***********  /
   /  FALTA FAZER  /
   /  *********** */
@@ -355,7 +386,7 @@ Rota Planejador::getRota(const IDRota& Id) const
   /  FALTA FAZER  /
   /  *********** */
   // Se nao encontrou, gera excecao
-  throw invalid_argument("getRota: invalid IDRota parameter");
+
 }
 
 /// *******************************************************************************
@@ -402,6 +433,12 @@ double Planejador::calculaCaminho(const IDPonto& id_origem,
     /* *****************************  /
     /  IMPLEMENTACAO DO ALGORITMO A*  /
     /  ***************************** */
+    /*Noh atual;
+    atual.id_pt = id_origem;
+    atual.id_rt = IDRota();
+    atual.g = 0.0;
+    atual.h = pt_origem.distancia(pt_destino);
+*/
 
     /* ***********  /
     /  FALTA FAZER  /
