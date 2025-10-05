@@ -2,18 +2,13 @@
 #include <cmath>
 #include <fstream>
 #include <limits>
-/* ACRESCENTE SE NECESSARIO */
-#include <algorithm> //para find
+#include <algorithm>
 #include <vector>
 #include <exception>
 
 #include "planejador.h"
 
 using namespace std;
-
-/* *************************
-   * CLASSE IDPONTO        *
-   ************************* */
 
 /// Atribuicao de string
 /// NAO DEVE SER MODIFICADA
@@ -23,10 +18,6 @@ void IDPonto::set(string&& S)
   if (!valid()) t.clear();
 }
 
-/* *************************
-   * CLASSE IDROTA         *
-   ************************* */
-
 /// Atribuicao de string
 /// NAO DEVE SER MODIFICADA
 void IDRota::set(string&& S)
@@ -35,10 +26,6 @@ void IDRota::set(string&& S)
   if (!valid()) t.clear();
 }
 
-/* *************************
-   * CLASSE PONTO          *
-   ************************* */
-
 /// Impressao em console
 /// NAO DEVE SER MODIFICADA
 ostream& operator<<(ostream& X, const Ponto& P)
@@ -46,7 +33,8 @@ ostream& operator<<(ostream& X, const Ponto& P)
   X << P.id << '\t' << P.nome << " (" <<P.latitude << ',' << P.longitude << ')';
   return X;
 }
-
+//-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+//Posso modificar
 //Sobrecarga de operadores
 bool Ponto::operator==(const Ponto& P) const{
     if (P.id != id) return false;
@@ -61,6 +49,7 @@ bool Ponto::operator==(const IDPonto& idP) const{
     return true;
 }
 
+//-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 /// Distancia entre 2 pontos (formula de haversine)
 /// NAO DEVE SER MODIFICADA
 double Ponto::distancia(const Ponto& P) const
@@ -103,6 +92,9 @@ ostream& operator<<(ostream& X, const Rota& R)
   return X;
 }
 
+//-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+//Posso modificar
+//Sobrecarga de operadores
 bool Rota::operator==(const Rota& R) const{
     //Com a mesma id?
     if (R.id != id) return false;
@@ -118,6 +110,9 @@ bool Rota::operator==(const IDRota& idR) const{
     if (id != idR) return false;
     return true;
 }
+
+//-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
 /// Retorna a outra extremidade da rota, a que nao eh o parametro.
 /// Gera excecao se o parametro nao for uma das extremidades da rota.
 /// NAO DEVE SER MODIFICADA
@@ -148,14 +143,10 @@ void Planejador::ler(const std::string& arq_pontos,
 {
 
     ifstream I;
-    // Vetores temporarios para armazenamento dos Pontos e Rotas lidos.
+
     vector<Ponto> pontos_temp;
-    //vector<Ponto>::iterator p;
-
     vector<Rota> rotas_temp;
-    //vector<Rota>::iterator r;
 
-    //Abre arquivo
     I.open(arq_pontos, fstream::in);
 
     try{
@@ -164,7 +155,7 @@ void Planejador::ler(const std::string& arq_pontos,
         string cabecalho;
 
         // Leitura da primeira linha do arquivo
-        getline(I, cabecalho);  // Leh ateh \n
+        getline(I, cabecalho); //Leh ateh \n
         if(I.fail() || cabecalho!="ID;Nome;Latitude;Longitude") throw ios_base::failure("Erro 2 na leitura do arquivo de pontos ");
 
         bool leitura_ok;
@@ -179,22 +170,18 @@ void Planejador::ler(const std::string& arq_pontos,
             getline(I, id, ';');
             prov.id.set(move(id));
             if (!I) throw ios_base::failure("Erro 3 na leitura do arquivo de pontos ");
-            //cout << prov.id;
 
             getline(I, prov.nome, ';');
             if (!I) throw ios_base::failure("Erro 4 na leitura do arquivo de pontos ");
-            //cout << prov.nome;
 
             I >> prov.latitude;
             if (!I) throw ios_base::failure("Erro 5 na leitura do arquivo de pontos ");
-            //cout << prov.latitude;
 
             getline(I, id, ';'); //Na leitura da latitude, cin nao consome o ; e o cin da longitude da erro pois consome
             //o ; mas longitude eh double
 
             I >> prov.longitude;
             if (!I) throw ios_base::failure("Erro 6 na leitura do arquivo de pontos ");
-            //cout << prov.longitude;
 
             I >> ws;
             leitura_ok = I.good();
@@ -208,7 +195,6 @@ void Planejador::ler(const std::string& arq_pontos,
             //Adiciona ponto ao vetor temporario
             pontos_temp.push_back(prov);
 
-
         }while (leitura_ok);
     }
 
@@ -217,10 +203,8 @@ void Planejador::ler(const std::string& arq_pontos,
         cerr << e.what() << arq_pontos;
     }
 
-    //Fecha o arquivo de pontos
     I.close();
 
-    //Abre o arquivo de rotas
     I.open(arq_rotas, fstream::in);
 
     try{
@@ -267,20 +251,14 @@ void Planejador::ler(const std::string& arq_pontos,
             //Testa se rota eh valida
             if (!prov.valid()) throw ios_base::failure("Erro 8 na leitura do arquivo de rotas ");
 
-            //    | 3.8) Testa que a Id da extremidade[0] corresponde a um ponto lido
-            //    |      no vetor temporario de Pontos (Em caso de erro, codigo 9)
             if (find(pontos_temp.begin(), pontos_temp.end(), prov.extremidade[0]) == pontos_temp.end()) throw ios_base::failure("Erro 9 na leitura do arquivo de rotas ");
 
             if (find(pontos_temp.begin(), pontos_temp.end(), prov.extremidade[1]) == pontos_temp.end()) throw ios_base::failure("Erro 10 na leitura do arquivo de rotas ");
 
-            //Testa se rota jah existe
-            //    | 3.10) Testa que nao existe Rota com a mesma ID no vetor temporario
-  //    |      de Rotas lidas ateh agora (Em caso de erro, codigo 11)
             if (find(rotas_temp.begin(), rotas_temp.end(), prov) != rotas_temp.end()) throw ios_base::failure("Erro 11 na leitura do arquivo de rotas ");
 
             //Adiciona rota ao vetor temporario
             rotas_temp.push_back(prov);
-
 
         }while (leitura_ok);
     }
@@ -290,103 +268,40 @@ void Planejador::ler(const std::string& arq_pontos,
         cerr << e.what() << arq_rotas;
     }
 
-    //Fecha o arquivo de rotas
     I.close();
-
-  // Leh as Rotas do arquivo e armazena no vetor temporario de Rotas.
-  // 1) Abre o arquivo de Rotas (Em caso de erro, codigo 1)
-  // 2) Leh e testa o cabecalho do arquivo: "ID;Nome;Extremidade 1;Extremidade 2;Comprimento"
-  //    (Em caso de erro, codigo 2)
-  // 3) Repita a leitura de cada uma das Rotas:
-  //    | 3.1) Leh a ID (Em caso de erro na leitura, codigo 3)
-  //    | 3.2) Leh o nome (Em caso de erro na leitura, codigo 4)
-  //    | 3.3) Leh a ID da extremidade[0] (Em caso de erro na leitura, codigo 5)
-  //    | 3.4) Leh a ID da extremidade[1] (Em caso de erro na leitura, codigo 6)
-  //    | 3.5) Leh o comprimento (Em caso de erro na leitura, codigo 7)
-  //    | 3.6) Consome todos os eventuais separadores ateh o inicio do proximo dado
-  //    | 3.7) Testa se a Rota com esses parametros lidos eh valida
-  //    |      (Em caso de erro, codigo 8)
-  //    | 3.8) Testa que a Id da extremidade[0] corresponde a um ponto lido
-  //    |      no vetor temporario de Pontos (Em caso de erro, codigo 9)
-  //    | 3.9) Testa que a Id da extremidade[1] corresponde a um ponto lido
-  //    |      no vetor temporario de Pontos (Em caso de erro, codigo 10)
-  //    | 3.10) Testa que nao existe Rota com a mesma ID no vetor temporario
-  //    |      de Rotas lidas ateh agora (Em caso de erro, codigo 11)
-  //    | 3.11) Insere a Rota lida no vetor temporario de Rotas
-  //    enquanto o arquivo não acabar (eof)
-  //    Em caso de qualquer erro, gera excecao ios_base::failure com mensagem:
-  //      "Erro <CODIGO> na leitura do arquivo de rotas <ARQ_ROTAS>"
-  // 4) Fecha o arquivo de Rotas
-  /* ***********  /
-  /  FALTA FAZER  /
-  /  *********** */
-
-    //for(p = pontos_temp.begin(); p != pontos_temp.end(); p++) cout << *p << endl;
-    //for(r = rotas_temp.begin(); r != rotas_temp.end(); r++) cout << *r << endl;
-  // Faz os vetores temporarios de Pontos e Rotas passarem a ser
-  // os vetores de Pontos e Rotas do planejador.
-  pontos = move(pontos_temp);
-  rotas = move(rotas_temp);
-  /* ***********  /
-  /  FALTA FAZER  /
-  /  *********** */
+    pontos = move(pontos_temp);
+    rotas = move(rotas_temp);
 }
 
 /// Retorna um Ponto do mapa, passando a id como parametro.
 /// Se a id for inexistente, gera excecao.
 /// Deve receber ACRESCIMOS
-Ponto Planejador::getPonto(const IDPonto& Id) const
-{
-  // Procura um ponto que corresponde aa Id do parametro
-  //vector<Ponto>::iterator p;
+Ponto Planejador::getPonto(const IDPonto& Id) const{
 
-    //for(p = pontos_temp.begin(); p != pontos_temp.end(); p++) cout << *p << endl;
-    try{
-        if(find(pontos.begin(), pontos.end(), Id) == pontos.end()) throw invalid_argument("getPonto: invalid IDPonto parameter");
-        return *find(pontos.begin(), pontos.end(), Id);
-    }
+    //Procura um ponto que corresponde aa Id do parametro
+    vector<Ponto>::const_iterator iter;
+    iter = find(pontos.begin(), pontos.end(), Id);
 
-  /* ***********  /
-  /  FALTA FAZER  /
-  /  *********** */
-    //existe ponto
+    // Em caso de sucesso, retorna o ponto encontrado
+    if (iter != pontos.end()) return *iter;
 
-  // Em caso de sucesso, retorna o ponto encontrado
-  /* ***********  /
-  /  FALTA FAZER  /
-  /  *********** */
-  // Se nao encontrou, gera excecao
-    catch(exception& e){
-        cerr << "Nao existe ponto correpondente";
-    }
-
+    // Se nao encontrou, gera excecao
+    throw invalid_argument("getPonto: invalid IDPonto parameter");
 }
 
 /// Retorna um Rota do mapa, passando a id como parametro.
 /// Se a id for inexistente, gera excecao.
 /// Deve receber ACRESCIMOS
-Rota Planejador::getRota(const IDRota& Id) const
-{
-  // Procura uma rota que corresponde aa Id do parametro
-    try{
-        if(find(rotas.begin(), rotas.end(), Id) == rotas.end()) throw invalid_argument("getRota: invalid IDRota parameter");
-        return *find(rotas.begin(), rotas.end(), Id);
-    }
+Rota Planejador::getRota(const IDRota& Id) const{
+    // Procura uma rota que corresponde aa Id do parametro
+    vector<Rota>::const_iterator iter;
+    iter = find(rotas.begin(), rotas.end(), Id);
 
-    catch(exception& e){
-        cerr << "Nao existe rota correpondente";
-    }
-    //existe rota
+    // Em caso de sucesso, retorna o ponto encontrado
+    if (iter != rotas.end()) return *iter;
 
-  /* ***********  /
-  /  FALTA FAZER  /
-  /  *********** */
-  // Em caso de sucesso, retorna a rota encontrada
-  /* ***********  /
-  /  FALTA FAZER  /
-  /  *********** */
-  // Se nao encontrou, gera excecao
-
+    // Se nao encontrou, gera excecao
+    throw invalid_argument("getRota: invalid IDRota parameter");
 }
 
 /// *******************************************************************************
