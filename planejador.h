@@ -203,7 +203,6 @@ class Planejador{
 };
 
 //Classe Noh
-
 class Noh{
 private:
 
@@ -212,7 +211,9 @@ public:
     IDRota id_rt;
     double g;
     double h;
-    double f;
+
+    double f(){return g + h;}
+    bool operator==(const IDPonto& idP) const;
 
 };
 
