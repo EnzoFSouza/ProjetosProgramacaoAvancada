@@ -99,11 +99,11 @@ ostream& operator<<(ostream& X, const Rota& R)
 bool Rota::operator==(const Rota& R) const{
     //Com a mesma id?
     if (R.id != id) return false;
-    /*if (R.nome != nome) return false;
+    if (R.nome != nome) return false;
     if (R.comprimento != comprimento) return false;
     for(int i = 0; i < 2; i++){
         if (R.extremidade[i] != extremidade[i]) return false;
-    }*/
+    }
     return true;
 }
 
@@ -112,6 +112,10 @@ bool Rota::operator==(const IDRota& idR) const{
     return true;
 }
 
+bool Rota::operator==(const IDPonto& idP) const{
+    if (idP != extremidade[0] && idP != extremidade[1]) return false;
+    return true;
+}
 //-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
 /// Retorna a outra extremidade da rota, a que nao eh o parametro.
@@ -280,8 +284,7 @@ void Planejador::ler(const std::string& arq_pontos,
 Ponto Planejador::getPonto(const IDPonto& Id) const{
 
     //Procura um ponto que corresponde aa Id do parametro
-    vector<Ponto>::const_iterator iter;
-    iter = find(pontos.begin(), pontos.end(), Id);
+    auto iter = find(pontos.begin(), pontos.end(), Id);
 
     // Em caso de sucesso, retorna o ponto encontrado
     if (iter != pontos.end()) return *iter;
@@ -295,9 +298,9 @@ Ponto Planejador::getPonto(const IDPonto& Id) const{
 /// Deve receber ACRESCIMOS
 Rota Planejador::getRota(const IDRota& Id) const{
     // Procura uma rota que corresponde aa Id do parametro
-    vector<Rota>::const_iterator iter;
-    iter = find(rotas.begin(), rotas.end(), Id);
+    auto iter = find(rotas.begin(), rotas.end(), Id);
 
+    cout << "Procurei";
     // Em caso de sucesso, retorna o ponto encontrado
     if (iter != rotas.end()) return *iter;
 
@@ -324,6 +327,10 @@ bool Noh::operator==(const Noh& N) const{
 bool Noh::operator<(double d){
     if (f() > d) return false;
     return true;
+}
+
+bool buscarRotaByIDPonto(const IDPonto& idP, const Rota& R){
+    return R.extremidade[0] == idP || R.extremidade[1] == idP;
 }
 /* ***********  /
 /  FALTA FAZER  /
@@ -381,7 +388,7 @@ double Planejador::calculaCaminho(const IDPonto& id_origem,
         atual = Aberto.front();
         Aberto.pop_front();
 
-        //INclui atual no final de fechado
+        //Inclui atual no final de fechado
         Fechado.push_back(atual);
 
         Rota rota_suc;
@@ -391,7 +398,15 @@ double Planejador::calculaCaminho(const IDPonto& id_origem,
             //Gera sucessores de atual
             do{
                 //busca rota_suc, proxima rota conectada a atual
-                rota_suc = getRota(atual.id_rt);
+                auto iter = find_if(rotas.begin(), rotas.end(), buscarRotaByIDPonto(atual.id_pt));
+                //auto iter = find(rotas.begin(), rotas.end(), Id);
+
+                //cout << "Procurei";
+                // Em caso de sucesso, retorna o ponto encontrado
+                //if (iter != rotas.end()) return *iter;
+
+                rota_suc = *iter;
+                //rota_suc = getRota(outraExtremidade(atual.id_pt));
 
                 //find no vetor de rotas, se nao existe é end
                 //if(EXISTE(rota_suc)){
@@ -399,10 +414,10 @@ double Planejador::calculaCaminho(const IDPonto& id_origem,
                     //gera noh sucessor suc
                     Noh suc;
 
-                    cout << suc.id_pt;
-                    //suc.id_pt = rota_suc.outraExtremidade(atual.id_rt);
-                    //suc.id_rt = rota_suc.id;
-                    //suc.g = atual.g + rota_suc.comprimento;
+                    //cout << suc.id_pt;
+                    suc.id_pt = rota_suc.outraExtremidade(atual.id_pt);
+                    suc.id_rt = rota_suc.id;
+                    suc.g = atual.g + rota_suc.comprimento;
 
                     //Ponto do noh suc
                     Ponto pt_suc = getPonto(suc.id_pt);

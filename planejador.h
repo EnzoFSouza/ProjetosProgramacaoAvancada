@@ -110,6 +110,7 @@ struct Rota
     // Utilizados pelos algoritmos STL
     bool operator==(const Rota& R) const;
     bool operator==(const IDRota& idR) const;
+    bool operator==(const IDPonto& idP) const;
     /* ***********  /
     /  FALTA FAZER  /
     /  *********** */
