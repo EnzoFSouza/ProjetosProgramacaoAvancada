@@ -151,13 +151,13 @@ void Planejador::ler(const std::string& arq_pontos,
     I.open(arq_pontos, fstream::in);
 
     try{
-        if(!I.is_open()) throw ios_base::failure("Erro 1 na leitura do arquivo de pontos ");
+        if(!I.is_open()) throw 1;
 
         string cabecalho;
 
         // Leitura da primeira linha do arquivo
         getline(I, cabecalho); //Leh ateh \n
-        if(I.fail() || cabecalho!="ID;Nome;Latitude;Longitude") throw ios_base::failure("Erro 2 na leitura do arquivo de pontos ");
+        if(I.fail() || cabecalho!="ID;Nome;Latitude;Longitude") throw 2;
 
         bool leitura_ok;
 
@@ -170,28 +170,28 @@ void Planejador::ler(const std::string& arq_pontos,
 
             getline(I, id, ';');
             prov.id.set(move(id));
-            if (!I) throw ios_base::failure("Erro 3 na leitura do arquivo de pontos ");
+            if (!I) throw 3;
 
             getline(I, prov.nome, ';');
-            if (!I) throw ios_base::failure("Erro 4 na leitura do arquivo de pontos ");
+            if (!I) throw 4;
 
             I >> prov.latitude;
-            if (!I) throw ios_base::failure("Erro 5 na leitura do arquivo de pontos ");
+            if (!I) throw 5;
 
             getline(I, id, ';'); //Na leitura da latitude, cin nao consome o ; e o cin da longitude da erro pois consome
             //o ; mas longitude eh double
 
             I >> prov.longitude;
-            if (!I) throw ios_base::failure("Erro 6 na leitura do arquivo de pontos ");
+            if (!I) throw 6;
 
             I >> ws;
             leitura_ok = I.good();
 
             //Testa se ponto eh valido
-            if (!prov.valid()) throw ios_base::failure("Erro 7 na leitura do arquivo de pontos ");
+            if (!prov.valid()) throw 7;
 
             //Testa se ponto jah existe
-            if (find(pontos_temp.begin(), pontos_temp.end(), prov) != pontos_temp.end()) throw ios_base::failure("Erro 8 na leitura do arquivo de pontos ");
+            if (find(pontos_temp.begin(), pontos_temp.end(), prov) != pontos_temp.end()) throw 8;
 
             //Adiciona ponto ao vetor temporario
             pontos_temp.push_back(prov);
@@ -199,9 +199,9 @@ void Planejador::ler(const std::string& arq_pontos,
         }while (leitura_ok);
     }
 
-    catch(const ios_base::failure& e){
-        //I.setstate(ios_base::failure);
-        cerr << e.what() << arq_pontos;
+    catch(int i){
+        string msg_error = "Erro " + to_string(i) + " na leitura do arquivo de pontos";
+        throw ios_base::failure(msg_error);
     }
 
     I.close();
@@ -209,13 +209,13 @@ void Planejador::ler(const std::string& arq_pontos,
     I.open(arq_rotas, fstream::in);
 
     try{
-        if(!I.is_open()) throw ios_base::failure("Erro 1 na leitura do arquivo de rotas ");
+        if(!I.is_open()) throw 1;
 
         string cabecalho;
 
         // Leitura da primeira linha do arquivo
         getline(I, cabecalho);  // Leh ateh \n
-        if(I.fail() || cabecalho!="ID;Nome;Extremidade 1;Extremidade 2;Comprimento") throw ios_base::failure("Erro 2 na leitura do arquivo de rotas ");
+        if(I.fail() || cabecalho!="ID;Nome;Extremidade 1;Extremidade 2;Comprimento") throw 2;
 
         bool leitura_ok;
 
@@ -230,33 +230,33 @@ void Planejador::ler(const std::string& arq_pontos,
 
             getline(I, id, ';');
             prov.id.set(move(id));
-            if (!I) throw ios_base::failure("Erro 3 na leitura do arquivo de rotas ");
+            if (!I) throw 3;
 
             getline(I, prov.nome, ';');
-            if (!I) throw ios_base::failure("Erro 4 na leitura do arquivo de rotas ");
+            if (!I) throw 4;
 
             getline(I, id1, ';');
             prov.extremidade[0].set(move(id1));
-            if (!I) throw ios_base::failure("Erro 5 na leitura do arquivo de rotas ");
+            if (!I) throw 5;
 
             getline(I, id2, ';');
             prov.extremidade[1].set(move(id2));
-            if (!I) throw ios_base::failure("Erro 6 na leitura do arquivo de rotas ");
+            if (!I) throw 6;
 
             I >> prov.comprimento;
-            if (!I) throw ios_base::failure("Erro 7 na leitura do arquivo de rotas ");
+            if (!I) throw 7;
 
             I >> ws;
             leitura_ok = I.good();
 
             //Testa se rota eh valida
-            if (!prov.valid()) throw ios_base::failure("Erro 8 na leitura do arquivo de rotas ");
+            if (!prov.valid()) throw 8;
 
-            if (find(pontos_temp.begin(), pontos_temp.end(), prov.extremidade[0]) == pontos_temp.end()) throw ios_base::failure("Erro 9 na leitura do arquivo de rotas ");
+            if (find(pontos_temp.begin(), pontos_temp.end(), prov.extremidade[0]) == pontos_temp.end()) throw 9;
 
-            if (find(pontos_temp.begin(), pontos_temp.end(), prov.extremidade[1]) == pontos_temp.end()) throw ios_base::failure("Erro 10 na leitura do arquivo de rotas ");
+            if (find(pontos_temp.begin(), pontos_temp.end(), prov.extremidade[1]) == pontos_temp.end()) throw 10;
 
-            if (find(rotas_temp.begin(), rotas_temp.end(), prov) != rotas_temp.end()) throw ios_base::failure("Erro 11 na leitura do arquivo de rotas ");
+            if (find(rotas_temp.begin(), rotas_temp.end(), prov) != rotas_temp.end()) throw 11;
 
             //Adiciona rota ao vetor temporario
             rotas_temp.push_back(prov);
@@ -264,9 +264,9 @@ void Planejador::ler(const std::string& arq_pontos,
         }while (leitura_ok);
     }
 
-    catch(const ios_base::failure& e){
-        //I.setstate(ios_base::failure);
-        cerr << e.what() << arq_rotas;
+    catch(int i){
+        string msg_error = "Erro " + to_string(i) + " na leitura do arquivo de rotas";
+        throw ios_base::failure(msg_error);
     }
 
     I.close();
@@ -314,6 +314,12 @@ Rota Planejador::getRota(const IDRota& Id) const{
 bool Noh::operator==(const IDPonto& idP) const{
     return (id_pt == idP);
 }
+
+bool Noh::operator==(const Noh& N) const{
+    if (id_pt != N.id_pt) return false;
+    if (id_rt != N.id_rt) return false;
+    return true;
+}
 /* ***********  /
 /  FALTA FAZER  /
 /  *********** */
@@ -358,8 +364,8 @@ double Planejador::calculaCaminho(const IDPonto& id_origem,
     atual.g = 0.0;
     atual.h = pt_origem.distancia(pt_destino);
 
-    list<Noh> Aberto;
-    vector<Noh> Fechado;
+    list<Noh> Aberto; //nohs ainda nao analisados
+    vector<Noh> Fechado; //nohs ja analisados
 
     Aberto.push_front(atual);
 
@@ -380,9 +386,12 @@ double Planejador::calculaCaminho(const IDPonto& id_origem,
                 //busca rota_suc, proxima rota conectada a atual
                 Rota rota_suc = getRota(atual.id_rt);
 
-                if(EXISTE(rota_suc)){
+                //find no vetor de rotas, se nao existe é end
+                //if(EXISTE(rota_suc)){
+                if(find(rotas.begin(), rotas.end(), rota_suc) != rotas.end()){
                     //gera noh sucessor suc
                     Noh suc;
+
                     suc.id_pt = rota_suc.outraExtremidade(atual.id_rt);
                     suc.id_rt = rota_suc.id;
                     suc.g = atual.g + rota_suc.comprimento;
@@ -400,7 +409,8 @@ double Planejador::calculaCaminho(const IDPonto& id_origem,
                     oldF = *itr;
 
                     //Achou algum noh
-                    if(EXISTE(oldF)){
+                    //if(EXISTE(oldF)){
+                    if(find(Fechado.begin(), Fechado.end(), oldF) != Fechado.end()){
                         //noh ja existe
                         eh_inedito = false;
                     }
@@ -412,7 +422,8 @@ double Planejador::calculaCaminho(const IDPonto& id_origem,
                         oldA = *itr;
 
                         //achou algum noh
-                        if(EXISTE(oldA)){
+                        //if(EXISTE(oldA)){
+                        if(find(Aberto.begin(), Aberto.end(), oldA) != Aberto.end()){
                             //Menor custo total
                             if(suc.f() <  oldA.f()){
                                 //exclui anterior
@@ -429,10 +440,10 @@ double Planejador::calculaCaminho(const IDPonto& id_origem,
                         Noh big = lower_bound(suc.f(), Aberto);
 
                         //insere suc em aberto antes de big
-                        insert(suc, big, aberto);
+                        insert(suc, big, Aberto);
                     }
                 }
-            }while(EXISTE(rota_suc)) //?Existe? rota suc
+            }while(find(rotas.begin(), rotas.end(), rota_suc) != rotas.end()); //Existe rota suc
         }
 
     }while(!Aberto.empty() && (atual.id_pt != id_destino));
@@ -479,10 +490,9 @@ double Planejador::calculaCaminho(const IDPonto& id_origem,
     /  *********** */
 
     // Substitua pelo caminho correto
-    C = Caminho();
 
     // Substitua pelo valor correto
-    return -1.0;
+    return Compr;
   }
   catch(int i)
   {
