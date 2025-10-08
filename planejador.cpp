@@ -320,6 +320,11 @@ bool Noh::operator==(const Noh& N) const{
     if (id_rt != N.id_rt) return false;
     return true;
 }
+
+bool Noh::operator<(double d){
+    if (f() > d) return false;
+    return true;
+}
 /* ***********  /
 /  FALTA FAZER  /
 /  *********** */
@@ -379,12 +384,14 @@ double Planejador::calculaCaminho(const IDPonto& id_origem,
         //INclui atual no final de fechado
         Fechado.push_back(atual);
 
+        Rota rota_suc;
+
         //Expande se nao eh solucao
         if(atual.id_pt != id_destino){
             //Gera sucessores de atual
             do{
                 //busca rota_suc, proxima rota conectada a atual
-                Rota rota_suc = getRota(atual.id_rt);
+                rota_suc = getRota(atual.id_rt);
 
                 //find no vetor de rotas, se nao existe é end
                 //if(EXISTE(rota_suc)){
@@ -392,9 +399,10 @@ double Planejador::calculaCaminho(const IDPonto& id_origem,
                     //gera noh sucessor suc
                     Noh suc;
 
-                    suc.id_pt = rota_suc.outraExtremidade(atual.id_rt);
-                    suc.id_rt = rota_suc.id;
-                    suc.g = atual.g + rota_suc.comprimento;
+                    cout << suc.id_pt;
+                    //suc.id_pt = rota_suc.outraExtremidade(atual.id_rt);
+                    //suc.id_rt = rota_suc.id;
+                    //suc.g = atual.g + rota_suc.comprimento;
 
                     //Ponto do noh suc
                     Ponto pt_suc = getPonto(suc.id_pt);
@@ -410,10 +418,7 @@ double Planejador::calculaCaminho(const IDPonto& id_origem,
 
                     //Achou algum noh
                     //if(EXISTE(oldF)){
-                    if(find(Fechado.begin(), Fechado.end(), oldF) != Fechado.end()){
-                        //noh ja existe
-                        eh_inedito = false;
-                    }
+                    if(find(Fechado.begin(), Fechado.end(), oldF) != Fechado.end()) eh_inedito = false; //noh ja existe
 
                     else{
                         //procura noh igual a suc em aberto
@@ -425,27 +430,23 @@ double Planejador::calculaCaminho(const IDPonto& id_origem,
                         //if(EXISTE(oldA)){
                         if(find(Aberto.begin(), Aberto.end(), oldA) != Aberto.end()){
                             //Menor custo total
-                            if(suc.f() <  oldA.f()){
-                                //exclui anterior
-                                Aberto.erase(itr);
-                            }
-                            else{
-                                //Noh ja exitse
-                                eh_inedito = false;
-                            }
+                            if(suc.f() <  oldA.f()) Aberto.erase(itr); //exclui anterior
+                            else eh_inedito = false; //Noh ja exitse
                         }
                     }
                     //nao existe igual
                     if(eh_inedito){
-                        Noh big = lower_bound(suc.f(), Aberto);
+                        //Noh big = lower_bound(suc.f(), Aberto);
+                        //Acha big, primeiro noh de aberto com custo total f() maior que f() de suc
+                        auto iter = lower_bound(Aberto.begin(), Aberto.end(), suc.f());
+                        Noh big = *iter;
 
                         //insere suc em aberto antes de big
-                        insert(suc, big, Aberto);
+                        Aberto.insert(iter, suc);
                     }
                 }
             }while(find(rotas.begin(), rotas.end(), rota_suc) != rotas.end()); //Existe rota suc
         }
-
     }while(!Aberto.empty() && (atual.id_pt != id_destino));
 
     NumAberto = size(Aberto);
