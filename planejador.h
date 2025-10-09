@@ -90,8 +90,7 @@ struct Ponto{
 
 /// Uma rota no mapa
 /// Pode receber ACRESCIMOS (nao modificacoes, supressoes)
-struct Rota
-{
+struct Rota{
     IDRota id;
     std::string nome;
     IDPonto extremidade[2];
@@ -213,11 +212,12 @@ public:
     double g;
     double h;
 
-    double f(){return g + h;}
+    double f() const {return g + h;}
 
     bool operator==(const IDPonto& idP) const;
     bool operator==(const Noh& N) const;
-    bool operator<(double d);
+    bool operator<(double d) const;
+    bool operator<(const Noh& N) const;
 
 };
 

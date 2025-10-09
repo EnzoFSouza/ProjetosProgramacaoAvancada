@@ -325,13 +325,14 @@ bool Noh::operator==(const Noh& N) const{
     return true;
 }
 
-bool Noh::operator<(double d){
+bool Noh::operator<(double d) const{
     if (f() > d) return false;
     return true;
 }
 
-bool buscarRotaByIDPonto(const IDPonto& idP, const Rota& R){
-    return R.extremidade[0] == idP || R.extremidade[1] == idP;
+bool Noh::operator<(const Noh& N) const{
+    if(f() > N.f()) return false;
+    return true;
 }
 /* ***********  /
 /  FALTA FAZER  /
@@ -392,12 +393,13 @@ double Planejador::calculaCaminho(const IDPonto& id_origem,
             //Inclui atual no final de fechado
             Fechado.push_back(atual);
 
-            Rota rota_suc;
+            //Rota rota_suc;
 
             //Expande se nao eh solucao
             if(atual.id_pt != id_destino){
                 //Gera sucessores de atual
-                do{
+                for(auto& rota_suc : rotas){
+                    if(!(rota_suc == atual.id_pt)) continue;
                     //busca rota_suc, proxima rota conectada a atual
                     //auto iter = find(rotas.begin(), rotas.end(), atual.id_pt);
                     //auto iter = find(rotas.begin(), rotas.end(), Id);
@@ -413,58 +415,63 @@ double Planejador::calculaCaminho(const IDPonto& id_origem,
 
                     //find no vetor de rotas, se nao existe é end
                     //if(EXISTE(rota_suc)){
-                    if(find(rotas.begin(), rotas.end(), rota_suc) != rotas.end()){
+                    //if(find(rotas.begin(), rotas.end(), rota_suc) != rotas.end()){
                         //cout << "Procurei";
                         //gera noh sucessor suc
-                        Noh suc;
+                    Noh suc;
 
                         //cout << suc.id_pt;
-                        suc.id_pt = rota_suc.outraExtremidade(atual.id_pt);
-                        suc.id_rt = rota_suc.id;
-                        suc.g = atual.g + rota_suc.comprimento;
+                    suc.id_pt = rota_suc.outraExtremidade(atual.id_pt);
+                    suc.id_rt = rota_suc.id;
+                    suc.g = atual.g + rota_suc.comprimento;
 
                         //Ponto do noh suc
-                        Ponto pt_suc = getPonto(suc.id_pt);
-                        suc.h = pt_suc.distancia(pt_destino);
+                    Ponto pt_suc = getPonto(suc.id_pt);
+                    suc.h = pt_suc.distancia(pt_destino);
 
                         //assume que nao existe igual a suc
-                        bool eh_inedito = true;
+                    bool eh_inedito = true;
 
                         //procura noh igual a suc e fechado
-                        Noh oldF;
-                        auto iter = find(Fechado.begin(), Fechado.end(), suc.id_pt);
-                        if(iter != Fechado.end()) oldF = *iter;
+                    Noh oldF;
+                    auto iter = find(Fechado.begin(), Fechado.end(), suc.id_pt);
+                    if(iter != Fechado.end()){
+                        oldF = *iter;
+                        eh_inedito = false;
+                    }
 
                         //Achou algum noh
                         //if(EXISTE(oldF)){
-                        if(find(Fechado.begin(), Fechado.end(), oldF) != Fechado.end()) eh_inedito = false; //noh ja existe
+                    //if(find(Fechado.begin(), Fechado.end(), oldF) != Fechado.end()) eh_inedito = false; //noh ja existe
 
-                        else{
+                    else{
                             //procura noh igual a suc em aberto
-                            Noh oldA;
-                            auto itera = find(Aberto.begin(), Aberto.end(), suc.id_pt);
-                            if(itera != Aberto.end()) oldA = *itera;
+                        Noh oldA;
+                        auto itera = find(Aberto.begin(), Aberto.end(), suc.id_pt);
+                        if(itera != Aberto.end()){
+
+                            oldA = *itera;
 
                             //achou algum noh
                             //if(EXISTE(oldA)){
-                            if(find(Aberto.begin(), Aberto.end(), oldA) != Aberto.end()){
+                        //if(find(Aberto.begin(), Aberto.end(), oldA) != Aberto.end()){
                                 //Menor custo total
-                                if(suc.f() <  oldA.f()) Aberto.erase(itera); //exclui anterior
-                                else eh_inedito = false; //Noh ja exitse
-                            }
-                        }
-                        //nao existe igual
-                        if(eh_inedito){
-                            //Noh big = lower_bound(suc.f(), Aberto);
-                            //Acha big, primeiro noh de aberto com custo total f() maior que f() de suc
-                            auto iterad = lower_bound(Aberto.begin(), Aberto.end(), suc.f());
-                            if (iterad != Aberto.end()) Noh big = *iterad;
-
-                            //insere suc em aberto antes de big
-                            Aberto.insert(iterad, suc);
+                            if(suc.f() <  oldA.f()) Aberto.erase(itera); //exclui anterior
+                            else eh_inedito = false; //Noh ja exitse
                         }
                     }
-                }while(find(rotas.begin(), rotas.end(), rota_suc) != rotas.end()); //Existe rota suc
+                        //nao existe igual
+                    if(eh_inedito){
+                            //Noh big = lower_bound(suc.f(), Aberto);
+                            //Acha big, primeiro noh de aberto com custo total f() maior que f() de suc
+                        auto iterad = lower_bound(Aberto.begin(), Aberto.end(), suc);
+                        if (iterad != Aberto.end()) Noh big = *iterad;
+
+                            //insere suc em aberto antes de big
+                        Aberto.insert(iterad, suc);
+                    }
+                }
+                //}while(find(rotas.begin(), rotas.end(), rota_suc) != rotas.end()); //Existe rota suc
         }
     }while(!Aberto.empty() && (atual.id_pt != id_destino));
 
