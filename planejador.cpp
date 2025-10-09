@@ -38,15 +38,15 @@ ostream& operator<<(ostream& X, const Ponto& P)
 //Posso modificar
 //Sobrecarga de operadores
 bool Ponto::operator==(const Ponto& P) const{
-    if (P.id != id) return false;
-    if (P.nome != nome) return false;
-    if ((P.latitude != latitude) || (P.longitude != longitude)) return false;
-
+    //if (P.id != id) return false;
+    //if (P.nome != nome) return false;
+    //if ((P.latitude != latitude) || (P.longitude != longitude)) return false;
+    if (id != P.id) return false;
     return true;
 }
 
 bool Ponto::operator==(const IDPonto& idP) const{
-    if (idP != id) return false;
+    if(id != idP) return false;
     return true;
 }
 
@@ -97,13 +97,12 @@ ostream& operator<<(ostream& X, const Rota& R)
 //Posso modificar
 //Sobrecarga de operadores
 bool Rota::operator==(const Rota& R) const{
-    //Com a mesma id?
-    if (R.id != id) return false;
-    if (R.nome != nome) return false;
-    if (R.comprimento != comprimento) return false;
-    for(int i = 0; i < 2; i++){
-        if (R.extremidade[i] != extremidade[i]) return false;
-    }
+    //if (nome != R.nome) return false;
+    //if (comprimento != R.comprimento) return false;
+    //for(int i = 0; i < 2; i++){
+    //    if (R.extremidade[i] != extremidade[i]) return false;
+    //}
+    if (id != R.id) return false;
     return true;
 }
 
@@ -260,6 +259,7 @@ void Planejador::ler(const std::string& arq_pontos,
 
             if (find(pontos_temp.begin(), pontos_temp.end(), prov.extremidade[1]) == pontos_temp.end()) throw 10;
 
+            //Testa se rota jah existe
             if (find(rotas_temp.begin(), rotas_temp.end(), prov) != rotas_temp.end()) throw 11;
 
             //Adiciona rota ao vetor temporario
@@ -269,6 +269,7 @@ void Planejador::ler(const std::string& arq_pontos,
     }
 
     catch(int i){
+        if (i == 11) cout << "rota ja existe" << endl;
         string msg_error = "Erro " + to_string(i) + " na leitura do arquivo de rotas";
         throw ios_base::failure(msg_error);
     }
@@ -398,19 +399,20 @@ double Planejador::calculaCaminho(const IDPonto& id_origem,
             //Gera sucessores de atual
             do{
                 //busca rota_suc, proxima rota conectada a atual
-                auto iter = find_if(rotas.begin(), rotas.end(), buscarRotaByIDPonto(atual.id_pt));
+                //auto iter = find(rotas.begin(), rotas.end(), atual.id_pt);
                 //auto iter = find(rotas.begin(), rotas.end(), Id);
 
                 //cout << "Procurei";
                 // Em caso de sucesso, retorna o ponto encontrado
                 //if (iter != rotas.end()) return *iter;
 
-                rota_suc = *iter;
+                rota_suc = *find(rotas.begin(), rotas.end(), atual.id_pt);
                 //rota_suc = getRota(outraExtremidade(atual.id_pt));
 
                 //find no vetor de rotas, se nao existe é end
                 //if(EXISTE(rota_suc)){
                 if(find(rotas.begin(), rotas.end(), rota_suc) != rotas.end()){
+                    //cout << "Procurei";
                     //gera noh sucessor suc
                     Noh suc;
 
@@ -466,6 +468,9 @@ double Planejador::calculaCaminho(const IDPonto& id_origem,
 
     NumAberto = size(Aberto);
     NumFechado = size(Fechado);
+
+    cout << NumAberto << endl;
+    cout << NumFechado << endl;
 
     // Inicialmente, caminho "C" vazio
     C = Caminho();
