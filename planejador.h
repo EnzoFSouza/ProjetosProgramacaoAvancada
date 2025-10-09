@@ -255,6 +255,7 @@ class Noh{
         double f() const {return g + h;}
 
         bool operator==(const IDPonto& idP) const;
+        bool operator==(const Noh& N) const;
         bool operator<(const Noh& N) const;
 };
 
