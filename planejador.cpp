@@ -2,6 +2,7 @@
 #include <cmath>
 #include <fstream>
 #include <limits>
+/* ACRESCENTE SE NECESSARIO */
 #include <algorithm>
 #include <vector>
 #include <list>
@@ -11,6 +12,10 @@
 
 using namespace std;
 
+/* *************************
+   * CLASSE IDPONTO        *
+   ************************* */
+
 /// Atribuicao de string
 /// NAO DEVE SER MODIFICADA
 void IDPonto::set(string&& S)
@@ -18,6 +23,10 @@ void IDPonto::set(string&& S)
   t=move(S);
   if (!valid()) t.clear();
 }
+
+/* *************************
+   * CLASSE IDROTA         *
+   ************************* */
 
 /// Atribuicao de string
 /// NAO DEVE SER MODIFICADA
@@ -27,6 +36,10 @@ void IDRota::set(string&& S)
   if (!valid()) t.clear();
 }
 
+/* *************************
+   * CLASSE PONTO          *
+   ************************* */
+
 /// Impressao em console
 /// NAO DEVE SER MODIFICADA
 ostream& operator<<(ostream& X, const Ponto& P)
@@ -34,23 +47,7 @@ ostream& operator<<(ostream& X, const Ponto& P)
   X << P.id << '\t' << P.nome << " (" <<P.latitude << ',' << P.longitude << ')';
   return X;
 }
-//-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-//Posso modificar
-//Sobrecarga de operadores
-bool Ponto::operator==(const Ponto& P) const{
-    //if (P.id != id) return false;
-    //if (P.nome != nome) return false;
-    //if ((P.latitude != latitude) || (P.longitude != longitude)) return false;
-    if (id != P.id) return false;
-    return true;
-}
 
-bool Ponto::operator==(const IDPonto& idP) const{
-    if(id != idP) return false;
-    return true;
-}
-
-//-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 /// Distancia entre 2 pontos (formula de haversine)
 /// NAO DEVE SER MODIFICADA
 double Ponto::distancia(const Ponto& P) const
@@ -80,6 +77,20 @@ double Ponto::distancia(const Ponto& P) const
   return 2.0*R_EARTH*atan2(sqrt(sin2_ang),sqrt(1-sin2_ang));
 }
 
+//Sobrecarga de operadores
+bool Ponto::operator==(const Ponto& P) const{
+    //if (P.id != id) return false;
+    //if (P.nome != nome) return false;
+    //if ((P.latitude != latitude) || (P.longitude != longitude)) return false;
+    if (id != P.id) return false;
+    return true;
+}
+
+bool Ponto::operator==(const IDPonto& idP) const{
+    if(id != idP) return false;
+    return true;
+}
+
 /* *************************
    * CLASSE ROTA           *
    ************************* */
@@ -93,8 +104,16 @@ ostream& operator<<(ostream& X, const Rota& R)
   return X;
 }
 
-//-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-//Posso modificar
+/// Retorna a outra extremidade da rota, a que nao eh o parametro.
+/// Gera excecao se o parametro nao for uma das extremidades da rota.
+/// NAO DEVE SER MODIFICADA
+IDPonto Rota::outraExtremidade(const IDPonto& ID) const
+{
+  if (extremidade[0]==ID) return extremidade[1];
+  if (extremidade[1]==ID) return extremidade[0];
+  throw invalid_argument("outraExtremidade: invalid IDPonto parameter");
+}
+
 //Sobrecarga de operadores
 bool Rota::operator==(const Rota& R) const{
     //if (nome != R.nome) return false;
@@ -115,18 +134,6 @@ bool Rota::operator==(const IDPonto& idP) const{
     if (extremidade[0] == idP || extremidade[1] == idP) return true;
     return false;
 }
-//-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-
-/// Retorna a outra extremidade da rota, a que nao eh o parametro.
-/// Gera excecao se o parametro nao for uma das extremidades da rota.
-/// NAO DEVE SER MODIFICADA
-IDPonto Rota::outraExtremidade(const IDPonto& ID) const
-{
-  if (extremidade[0]==ID) return extremidade[1];
-  if (extremidade[1]==ID) return extremidade[0];
-  throw invalid_argument("outraExtremidade: invalid IDPonto parameter");
-}
-
 /* *************************
    * CLASSE PLANEJADOR     *
    ************************* */
@@ -145,8 +152,7 @@ void Planejador::clear()
 void Planejador::ler(const std::string& arq_pontos,
                      const std::string& arq_rotas)
 {
-
-    ifstream I;
+  ifstream I;
 
     vector<Ponto> pontos_temp;
     vector<Rota> rotas_temp;
@@ -282,9 +288,9 @@ void Planejador::ler(const std::string& arq_pontos,
 /// Retorna um Ponto do mapa, passando a id como parametro.
 /// Se a id for inexistente, gera excecao.
 /// Deve receber ACRESCIMOS
-Ponto Planejador::getPonto(const IDPonto& Id) const{
-
-    //Procura um ponto que corresponde aa Id do parametro
+Ponto Planejador::getPonto(const IDPonto& Id) const
+{
+  //Procura um ponto que corresponde aa Id do parametro
     auto iter = find(pontos.begin(), pontos.end(), Id);
 
     // Em caso de sucesso, retorna o ponto encontrado
@@ -297,7 +303,8 @@ Ponto Planejador::getPonto(const IDPonto& Id) const{
 /// Retorna um Rota do mapa, passando a id como parametro.
 /// Se a id for inexistente, gera excecao.
 /// Deve receber ACRESCIMOS
-Rota Planejador::getRota(const IDRota& Id) const{
+Rota Planejador::getRota(const IDRota& Id) const
+{
     // Procura uma rota que corresponde aa Id do parametro
     auto iter = find(rotas.begin(), rotas.end(), Id);
 
@@ -319,24 +326,10 @@ bool Noh::operator==(const IDPonto& idP) const{
     return (id_pt == idP);
 }
 
-bool Noh::operator==(const Noh& N) const{
-    if (id_pt != N.id_pt) return false;
-    if (id_rt != N.id_rt) return false;
-    return true;
-}
-
-bool Noh::operator<(double d) const{
-    if (f() > d) return false;
-    return true;
-}
-
 bool Noh::operator<(const Noh& N) const{
     if(f() > N.f()) return false;
     return true;
 }
-/* ***********  /
-/  FALTA FAZER  /
-/  *********** */
 
 /// Calcula o caminho mais curto no mapa entre origem e destino, usando o algoritmo A*
 /// Retorna o comprimento do caminho encontrado (<0 se nao existe caminho).
@@ -369,111 +362,115 @@ double Planejador::calculaCaminho(const IDPonto& id_origem,
       throw 2;
     }
 
-        /* *****************************  /
-        /  IMPLEMENTACAO DO ALGORITMO A*  /
-        /  ***************************** */
-        Noh atual;
-        atual.id_pt = id_origem;
-        atual.id_rt = IDRota();
-        atual.g = 0.0;
-        atual.h = pt_origem.distancia(pt_destino);
+    /* *****************************  /
+    /  IMPLEMENTACAO DO ALGORITMO A*  /
+    /  ***************************** */
+    Noh atual;
+    atual.id_pt = id_origem;
+    atual.id_rt = IDRota();
+    atual.g = 0.0;
+    atual.h = pt_origem.distancia(pt_destino);
 
-        list<Noh> Aberto;
-        vector<Noh> Fechado;
+    list<Noh> Aberto;
+    vector<Noh> Fechado;
 
-        Aberto.push_front(atual);
+    Aberto.push_front(atual);
 
-        while(!Aberto.empty()) {
-            // Pega nó de menor f() e remove da lista
-            atual = Aberto.front();
-            Aberto.pop_front();
+    //Enquanto nao encontrou solucao e existem nohs em aberto
+    while((!Aberto.empty()) && (atual.id_pt != id_destino)) {
 
-            // Adiciona no Fechado
-            Fechado.push_back(atual);
+        //Le e excluiu o 1 noh (de menor custo) de aberto
+        atual = Aberto.front();
+        Aberto.pop_front();
 
-            // Verifica se é destino
-            if(atual.id_pt == id_destino) break;
+        // Adiciona noh atual ao final de dechado
+        Fechado.push_back(atual);
 
-            // Gera sucessores
-            for(auto& rota : rotas) {
-                if(!(rota == atual.id_pt)) continue;
+        // Verifica se é destino
+        if(atual.id_pt == id_destino) break;
 
-                Noh suc;
-                suc.id_pt = rota.outraExtremidade(atual.id_pt);
-                suc.id_rt = rota.id;
-                suc.g = atual.g + rota.comprimento;
-                Ponto pt_suc = getPonto(suc.id_pt);
-                suc.h = pt_suc.distancia(pt_destino);
+        // Gera sucessores
+        // Iterando pelo vetor de rotas
+        for(const auto& rota_suc : rotas) {
+            if(!(rota_suc == atual.id_pt)) continue; //pular as rotas que nao partem do ponto atual
 
-                bool eh_inedito = true;
+            //Criando noh suc
+            Noh suc;
+            suc.id_pt = rota_suc.outraExtremidade(atual.id_pt);
+            suc.id_rt = rota_suc.id;
+            suc.g = atual.g + rota_suc.comprimento;
+            Ponto pt_suc = getPonto(suc.id_pt);
+            suc.h = pt_suc.distancia(pt_destino);
 
-                // Verifica se suc já está em Fechado
-                for(const auto& nohF : Fechado) {
-                    if(nohF.id_pt == suc.id_pt) {
-                        eh_inedito = false;
-                        break;
-                    }
-                }
+            bool eh_inedito = true;
 
-                // Verifica se suc já está em Aberto
-                if(eh_inedito) {
-                    for(auto itA = Aberto.begin(); itA != Aberto.end(); ++itA) {
-                        if(itA->id_pt == suc.id_pt) {
-                            if(suc.f() < itA->f()) {
-                                Aberto.erase(itA); // remove nó mais caro
-                            } else {
-                                eh_inedito = false; // já existe com custo melhor
-                            }
-                            break;
-                        }
-                    }
-                }
-
-                // Insere suc na posição correta de Aberto
-                if(eh_inedito) {
-                    auto it = Aberto.begin();
-                    while(it != Aberto.end() && it->f() < suc.f()) ++it;
-                    Aberto.insert(it, suc);
-                }
-            }
-        }
-
-
-    NumAberto = Aberto.size();
-        NumFechado = Fechado.size();
-
-        // Inicializa caminho vazio
-        C = Caminho();
-        double Compr;
-
-        if(atual.id_pt != id_destino) {
-            // Não encontrou caminho
-            Compr = -1.0;
-        } else {
-            // Caminho encontrado
-            Compr = atual.g;
-            IDPonto id_atual = atual.id_pt;
-
-            while(id_atual.valid()) {
-                // Encontra rota que levou até id_atual
-                auto it = find(Fechado.begin(), Fechado.end(), id_atual);
-                if(it == Fechado.end()) break;
-
-                C.push(Trecho(it->id_rt, it->id_pt));
-
-                // Rota anterior
-                Rota rota_ant = getRota(it->id_rt);
-                id_atual = rota_ant.outraExtremidade(it->id_pt);
-
-                // Se chegou na origem, insere trecho final e sai
-                if(id_atual == id_origem) {
-                    C.push(Trecho(rota_ant.id, id_atual));
+            // Procura noh igual a suc em fechado
+            for(const auto& nohF : Fechado) {
+                if(nohF.id_pt == suc.id_pt) {
+                    eh_inedito = false; //noh ja existe
                     break;
                 }
             }
-        }
 
-        return Compr;
+            // Procura noh igual a suc em aberto
+            if(eh_inedito) {
+                for(auto itA = Aberto.begin(); itA != Aberto.end(); ++itA) {
+                    if(itA->id_pt == suc.id_pt) { //se encontrou noh
+                        if(suc.f() < itA->f()) { //menor custo total
+                            Aberto.erase(itA); // exclui anterior, remove nó mais caro
+                        } else {
+                            eh_inedito = false; // noh já existe com custo melhor
+                        }
+                        break;
+                    }
+                }
+            }
+
+            // Insere suc na posição correta de aberto
+            if(eh_inedito) {
+                auto it = Aberto.begin();
+                while(it != Aberto.end() && it->f() < suc.f()) ++it;
+                Aberto.insert(it, suc);
+            }
+        }
+    }
+
+
+    NumAberto = Aberto.size();
+    NumFechado = Fechado.size();
+
+    // Inicializa caminho vazio
+    C = Caminho();
+    double Compr;
+
+    if(atual.id_pt != id_destino) {
+            // Não encontrou caminho
+            Compr = -1.0;
+    } else {
+        // Caminho encontrado
+        Compr = atual.g;
+        IDPonto id_atual = atual.id_pt;
+
+        while(id_atual.valid()) {
+            // Encontra rota que levou até id_atual
+            auto it = find(Fechado.begin(), Fechado.end(), id_atual);
+            if(it == Fechado.end()) break;
+
+            C.push(Trecho(it->id_rt, it->id_pt));
+
+            // Rota anterior
+            Rota rota_ant = getRota(it->id_rt);
+            id_atual = rota_ant.outraExtremidade(it->id_pt);
+
+            // Se chegou na origem, insere trecho final e sai
+            if(id_atual == id_origem) {
+                C.push(Trecho(rota_ant.id, id_atual));
+                break;
+            }
+        }
+    }
+
+    return Compr;
   }
 
   catch(int i){
