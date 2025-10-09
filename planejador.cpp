@@ -275,7 +275,6 @@ void Planejador::ler(const std::string& arq_pontos,
     }
 
     catch(int i){
-        if (i == 11) cout << "rota ja existe" << endl;
         string msg_error = "Erro " + to_string(i) + " na leitura do arquivo de rotas";
         throw ios_base::failure(msg_error);
     }
@@ -382,7 +381,7 @@ double Planejador::calculaCaminho(const IDPonto& id_origem,
     Aberto.push_front(atual);
 
     //enquanto nao encontrou solucao e existem nohs em aberto
-    while((!Aberto.empty()) && (atual.id_pt != id_destino)) {
+    do {
 
         //le e excluiu o 1 noh (de menor custo) de aberto
         atual = Aberto.front();
@@ -438,7 +437,7 @@ double Planejador::calculaCaminho(const IDPonto& id_origem,
                 }
             }
         }
-    }
+    } while((!Aberto.empty()) && (atual.id_pt != id_destino));
 
 
     NumAberto = Aberto.size();
