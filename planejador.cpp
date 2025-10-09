@@ -378,150 +378,102 @@ double Planejador::calculaCaminho(const IDPonto& id_origem,
         atual.g = 0.0;
         atual.h = pt_origem.distancia(pt_destino);
 
-        list<Noh> Aberto; //nohs ainda nao analisados
-        vector<Noh> Fechado; //nohs ja analisados
+        list<Noh> Aberto;
+        vector<Noh> Fechado;
 
         Aberto.push_front(atual);
 
-        //Laco principal do algoritmo
-        do{
-            // Lê e exclui o 1º Noh (o de
-            // menor custo) de Aberto
+        while(!Aberto.empty()) {
+            // Pega nó de menor f() e remove da lista
             atual = Aberto.front();
             Aberto.pop_front();
 
-            //Inclui atual no final de fechado
+            // Adiciona no Fechado
             Fechado.push_back(atual);
 
-            //Rota rota_suc;
+            // Verifica se é destino
+            if(atual.id_pt == id_destino) break;
 
-            //Expande se nao eh solucao
-            if(atual.id_pt != id_destino){
-                //Gera sucessores de atual
-                for(auto& rota_suc : rotas){
-                    if(!(rota_suc == atual.id_pt)) continue;
-                    //busca rota_suc, proxima rota conectada a atual
-                    //auto iter = find(rotas.begin(), rotas.end(), atual.id_pt);
-                    //auto iter = find(rotas.begin(), rotas.end(), Id);
+            // Gera sucessores
+            for(auto& rota : rotas) {
+                if(!(rota == atual.id_pt)) continue;
 
-                    //cout << "Procurei";
-                    // Em caso de sucesso, retorna o ponto encontrado
-                    //if (iter != rotas.end()) return *iter;
+                Noh suc;
+                suc.id_pt = rota.outraExtremidade(atual.id_pt);
+                suc.id_rt = rota.id;
+                suc.g = atual.g + rota.comprimento;
+                Ponto pt_suc = getPonto(suc.id_pt);
+                suc.h = pt_suc.distancia(pt_destino);
 
-                    auto itr = find(rotas.begin(), rotas.end(), atual.id_pt);
-                    if (itr != rotas.end()) rota_suc = *itr;
+                bool eh_inedito = true;
 
-                    //rota_suc = getRota(outraExtremidade(atual.id_pt));
-
-                    //find no vetor de rotas, se nao existe é end
-                    //if(EXISTE(rota_suc)){
-                    //if(find(rotas.begin(), rotas.end(), rota_suc) != rotas.end()){
-                        //cout << "Procurei";
-                        //gera noh sucessor suc
-                    Noh suc;
-
-                        //cout << suc.id_pt;
-                    suc.id_pt = rota_suc.outraExtremidade(atual.id_pt);
-                    suc.id_rt = rota_suc.id;
-                    suc.g = atual.g + rota_suc.comprimento;
-
-                        //Ponto do noh suc
-                    Ponto pt_suc = getPonto(suc.id_pt);
-                    suc.h = pt_suc.distancia(pt_destino);
-
-                        //assume que nao existe igual a suc
-                    bool eh_inedito = true;
-
-                        //procura noh igual a suc e fechado
-                    Noh oldF;
-                    auto iter = find(Fechado.begin(), Fechado.end(), suc.id_pt);
-                    if(iter != Fechado.end()){
-                        oldF = *iter;
+                // Verifica se suc já está em Fechado
+                for(const auto& nohF : Fechado) {
+                    if(nohF.id_pt == suc.id_pt) {
                         eh_inedito = false;
-                    }
-
-                        //Achou algum noh
-                        //if(EXISTE(oldF)){
-                    //if(find(Fechado.begin(), Fechado.end(), oldF) != Fechado.end()) eh_inedito = false; //noh ja existe
-
-                    else{
-                            //procura noh igual a suc em aberto
-                        Noh oldA;
-                        auto itera = find(Aberto.begin(), Aberto.end(), suc.id_pt);
-                        if(itera != Aberto.end()){
-
-                            oldA = *itera;
-
-                            //achou algum noh
-                            //if(EXISTE(oldA)){
-                        //if(find(Aberto.begin(), Aberto.end(), oldA) != Aberto.end()){
-                                //Menor custo total
-                            if(suc.f() <  oldA.f()) Aberto.erase(itera); //exclui anterior
-                            else eh_inedito = false; //Noh ja exitse
-                        }
-                    }
-                        //nao existe igual
-                    if(eh_inedito){
-                            //Noh big = lower_bound(suc.f(), Aberto);
-                            //Acha big, primeiro noh de aberto com custo total f() maior que f() de suc
-                        auto iterad = lower_bound(Aberto.begin(), Aberto.end(), suc);
-                        if (iterad != Aberto.end()) Noh big = *iterad;
-
-                            //insere suc em aberto antes de big
-                        Aberto.insert(iterad, suc);
+                        break;
                     }
                 }
-                //}while(find(rotas.begin(), rotas.end(), rota_suc) != rotas.end()); //Existe rota suc
+
+                // Verifica se suc já está em Aberto
+                if(eh_inedito) {
+                    for(auto itA = Aberto.begin(); itA != Aberto.end(); ++itA) {
+                        if(itA->id_pt == suc.id_pt) {
+                            if(suc.f() < itA->f()) {
+                                Aberto.erase(itA); // remove nó mais caro
+                            } else {
+                                eh_inedito = false; // já existe com custo melhor
+                            }
+                            break;
+                        }
+                    }
+                }
+
+                // Insere suc na posição correta de Aberto
+                if(eh_inedito) {
+                    auto it = Aberto.begin();
+                    while(it != Aberto.end() && it->f() < suc.f()) ++it;
+                    Aberto.insert(it, suc);
+                }
+            }
         }
-    }while(!Aberto.empty() && (atual.id_pt != id_destino));
 
-    NumAberto = size(Aberto);
-    NumFechado = size(Fechado);
 
-    cout << NumAberto << endl;
-    cout << NumFechado << endl;
+    NumAberto = Aberto.size();
+        NumFechado = Fechado.size();
 
-    // Inicialmente, caminho "C" vazio
-    C = Caminho();
+        // Inicializa caminho vazio
+        C = Caminho();
+        double Compr;
 
-    double Compr;
-    // Encontrou solução ou nao?
-    if(atual.id_pt != id_destino){
-        Compr = -1.0;
-    }
-    else{
-        Compr = atual.g;
+        if(atual.id_pt != id_destino) {
+            // Não encontrou caminho
+            Compr = -1.0;
+        } else {
+            // Caminho encontrado
+            Compr = atual.g;
+            IDPonto id_atual = atual.id_pt;
 
-        while(atual.id_pt.valid()){
-            // Acrescenta Trecho atual no
-            // topo do caminho "C"
-            C.push(Trecho(atual.id_rt, atual.id_pt));
+            while(id_atual.valid()) {
+                // Encontra rota que levou até id_atual
+                auto it = find(Fechado.begin(), Fechado.end(), id_atual);
+                if(it == Fechado.end()) break;
 
-            // Recupera o antecessor.
-            // Obtém "rota_ant", Rota que
-            // levou até "atual".
-            Rota rota_ant = getRota(atual.id_rt);
+                C.push(Trecho(it->id_rt, it->id_pt));
 
-            //Calcula id do antecessor
-            IDPonto id_pt_ant = rota_ant.outraExtremidade(atual.id_pt);
+                // Rota anterior
+                Rota rota_ant = getRota(it->id_rt);
+                id_atual = rota_ant.outraExtremidade(it->id_pt);
 
-            //Procura noh igual a "id_pt_ant" em fechado
-            auto iter = find(Fechado.begin(), Fechado.end(), id_pt_ant);
-            if (iter != Fechado.end()) atual = *iter;
-
+                // Se chegou na origem, insere trecho final e sai
+                if(id_atual == id_origem) {
+                    C.push(Trecho(rota_ant.id, id_atual));
+                    break;
+                }
+            }
         }
-         // Acrescenta Trecho da origem no
-        // topo do caminho "C"
-        C.push(Trecho(atual.id_rt, atual.id_pt));
-    }
-    /* ***********  /
-    /  FALTA FAZER  /
-    /  *********** */
 
-    // Substitua pelo caminho correto
-
-    // Substitua pelo valor correto
-    return Compr;
+        return Compr;
   }
 
   catch(int i){
