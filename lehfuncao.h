@@ -16,6 +16,9 @@ public:
     ~LehFuncao();
     void clear();
 
+signals:
+    void signIncluirFuncao(QString Funcao, QColor Cor);
+
 private slots:
     void on_radioAzul_clicked();
 
@@ -26,8 +29,6 @@ private slots:
     void on_radioPreto_clicked();
 
     void on_buttonBox_accepted();
-
-    void signIncluirFuncao(QString Funcao, QColor Cor);
 
 private:
     Ui::LehFuncao *ui;

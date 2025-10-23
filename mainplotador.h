@@ -2,6 +2,8 @@
 #define MAINPLOTADOR_H
 
 #include <QMainWindow>
+#include "lehfuncao.h"
+#include "evaluator.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -38,7 +40,23 @@ private slots:
 
     void on_pushApagar_clicked();
 
+    void slotIncluirFuncao(QString Funcao, QColor Cor);
+
 private:
     Ui::MainPlotador *ui;
+
+    double convXtoJ(double X) const; //converte valor X para coordenada (coluna) J
+    double convYtoI(double Y) const; //converte valor Y para coordenada (linha) I
+    double convJtoX(double J) const; //converte coordenada (coluna) J para valor X
+    double convItoY(double Y) const; //converte coordenada (linha) I para valor Y
+    void exibirFuncoes(); //exibe lista de funcoes a serem plotadas
+    void desenharGrafico(); //desenha gráfico com as funções
+
+    LehFuncao* lehFuncao;
+    std::vector<Evaluator> eval;
+    std::vector<QColor> cor;
+    int largura, altura;
+    double minX, maxX, minY, maxY;
+    int nMarcX, nMarcY;
 };
 #endif // MAINPLOTADOR_H

@@ -45,6 +45,6 @@ void LehFuncao::on_radioPreto_clicked()
 
 void LehFuncao::on_buttonBox_accepted()
 {
-    signIncluirFuncao(ui->lineEdit->text, cor);
+    emit signIncluirFuncao(ui->lineEdit->text(), cor);
 }
 
