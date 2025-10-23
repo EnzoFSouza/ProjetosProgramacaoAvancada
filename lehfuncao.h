@@ -14,6 +14,7 @@ class LehFuncao : public QDialog
 public:
     explicit LehFuncao(QWidget *parent = nullptr);
     ~LehFuncao();
+    void clear();
 
 private slots:
     void on_radioAzul_clicked();
@@ -26,8 +27,11 @@ private slots:
 
     void on_buttonBox_accepted();
 
+    void signIncluirFuncao(QString Funcao, QColor Cor);
+
 private:
     Ui::LehFuncao *ui;
+    QColor cor;
 };
 
 #endif // LEHFUNCAO_H
