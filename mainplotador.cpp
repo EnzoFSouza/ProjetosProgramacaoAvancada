@@ -47,19 +47,20 @@ MainPlotador::~MainPlotador()
 
 void MainPlotador::on_actionFun_o_triggered()
 {
-
+    lehFuncao->clear();
+    lehFuncao->show();
 }
 
 
 void MainPlotador::on_actionApagar_triggered()
 {
-
+    on_pushApagar_clicked();
 }
 
 
 void MainPlotador::on_actionSair_triggered()
 {
-
+    QCoreApplication::quit();
 }
 
 
