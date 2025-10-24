@@ -4,6 +4,8 @@
 #include <stdexcept>
 #include <QLabel>
 #include <QPixmap>
+#include <QPainter>
+#include <QPen>
 
 MainPlotador::MainPlotador(QWidget *parent)
     : QMainWindow(parent)
@@ -103,7 +105,7 @@ void MainPlotador::on_spinMinY_valueChanged(int arg1)
 void MainPlotador::on_spinMaxY_valueChanged(int arg1)
 {
     maxY = arg1 * pow(10.0, ui->spinExpY->value());
-    nMarcX = 1 + ui->spinMaxY->value() - ui->spinMinY->value();
+    nMarcY = 1 + ui->spinMaxY->value() - ui->spinMinY->value();
 
     ui->spinMinY->setMaximum(arg1 - 1);
 
@@ -195,6 +197,81 @@ void MainPlotador::exibirFuncoes()
 
 void MainPlotador::desenharGrafico()
 {
+    QPen pen;
+    QPainter painter;
 
+    largura = ui->grafico->width();
+    altura = ui->grafico->height();
+
+    QPixmap img(largura, altura);
+    img.fill(Qt::white);
+
+    pen.setWidth(3);
+    pen.setColor(Qt::black);
+    painter.begin(&img);
+    painter.setPen(pen);
+
+    //Eixo X
+    double Izero = convYtoI(0.0);
+    if ((Izero >= 0.0) && (Izero <= altura - 1.0)){
+        QLineF eixoX(0.0, Izero, largura - 1.0, Izero);
+        painter.drawLine(eixoX);
+
+        for(int i = 0; i < nMarcX; ++i){
+            double Jmarc = convXtoJ(minX + (maxX - minX) * i / (nMarcX - 1.0));
+            QLineF marcacao(Jmarc, Izero - 3.0, Jmarc, Izero + 3.0);
+            painter.drawLine(marcacao);
+        }
+    }
+
+    //Eixo Y
+    double Jzero = convXtoJ(0.0);
+    if (Jzero >= 0.0 && Jzero <= largura - 1.0)
+    {
+        QLineF eixoY(Jzero, 0.0, Jzero, altura - 1.0);
+        painter.drawLine(eixoY);
+
+        for (int i = 0; i < nMarcY; ++i)
+        {
+            double Imarc = convYtoI(minY + (maxY - minY) * i / (nMarcY - 1.0));
+            QLineF marcacao(Jzero - 3.0, Imarc, Jzero + 3.0, Imarc);
+            painter.drawLine(marcacao);
+        }
+    }
+
+    if(eval.empty()){
+        painter.end();
+        ui->grafico->setPixmap(img);
+        return;
+    }
+
+    double X, Y;
+    double I, Iant;
+
+    pen.setWidth(1);
+
+    for(int k = 0; k <= eval.size() - 1; k++){
+        pen.setColor(cor.at(k));
+        painter.setPen(pen);
+
+        Iant = -1.0;
+
+        for(int J = 0; J <= largura - 1; J++){
+            X = convJtoX(J);
+            Y = eval.at(k)(X);
+            I = convYtoI(Y);
+
+            if (I >= 0.0 && I <= altura - 1.0 && Iant >= 0.0 && Iant <= altura - 1.0){
+                QLineF linha(J - 1, Iant, J, I);
+                painter.drawLine(linha); // conecta ponto anterior ao atual
+            }
+
+            Iant = I;
+        }
+    }
+
+    painter.end();
+
+    ui->grafico->setPixmap(img);
 }
 
