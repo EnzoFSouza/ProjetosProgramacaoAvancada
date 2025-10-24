@@ -180,7 +180,7 @@ void MainPlotador::exibirFuncoes()
     QLabel* prov;
     QPixmap img(20,20);
 
-    for(int k = 0; k <= eval.size() - 1; k++){
+    for(int k = 0; k < eval.size(); ++k){
         img.fill(cor.at(k));
         prov = new QLabel(this);
         prov->setAlignment(Qt::AlignCenter);
@@ -250,7 +250,7 @@ void MainPlotador::desenharGrafico()
 
     pen.setWidth(1);
 
-    for(int k = 0; k <= eval.size() - 1; k++){
+    for(int k = 0; k < eval.size(); ++k){
         pen.setColor(cor.at(k));
         painter.setPen(pen);
 
