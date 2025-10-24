@@ -2,6 +2,8 @@
 #define MAINPLOTADOR_H
 
 #include <QMainWindow>
+#include <vector>
+#include <QMessageBox>
 #include "lehfuncao.h"
 #include "evaluator.h"
 
@@ -48,7 +50,7 @@ private:
     double convXtoJ(double X) const; //converte valor X para coordenada (coluna) J
     double convYtoI(double Y) const; //converte valor Y para coordenada (linha) I
     double convJtoX(double J) const; //converte coordenada (coluna) J para valor X
-    double convItoY(double Y) const; //converte coordenada (linha) I para valor Y
+    double convItoY(double I) const; //converte coordenada (linha) I para valor Y
     void exibirFuncoes(); //exibe lista de funcoes a serem plotadas
     void desenharGrafico(); //desenha gráfico com as funções
 
