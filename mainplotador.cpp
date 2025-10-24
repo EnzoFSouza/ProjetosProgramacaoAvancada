@@ -2,6 +2,8 @@
 #include "ui_mainplotador.h"
 #include "evaluator.h"
 #include <stdexcept>
+#include <QLabel>
+#include <QPixmap>
 
 MainPlotador::MainPlotador(QWidget *parent)
     : QMainWindow(parent)
@@ -170,7 +172,25 @@ void MainPlotador::slotIncluirFuncao(QString Funcao, QColor Cor)
 
 void MainPlotador::exibirFuncoes()
 {
+    ui->tableFuncoes->clearContents();
+    ui->tableFuncoes->setRowCount(eval.size());
 
+    QLabel* prov;
+    QPixmap img(20,20);
+
+    for(int k = 0; k <= eval.size() - 1; k++){
+        img.fill(cor.at(k));
+        prov = new QLabel(this);
+        prov->setAlignment(Qt::AlignCenter);
+        prov->setPixmap(img);
+        ui->tableFuncoes->setCellWidget(k, 0, prov);
+
+        prov = new QLabel(this);
+        prov->setAlignment(Qt::AlignVCenter | Qt::AlignLeft);
+        prov->setWordWrap(true);
+        prov->setText(QString::fromStdString(eval.at(k).getText()));
+        ui->tableFuncoes->setCellWidget(k, 1, prov);
+    }
 }
 
 void MainPlotador::desenharGrafico()
