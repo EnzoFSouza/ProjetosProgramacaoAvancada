@@ -177,6 +177,8 @@ void MainPlotador::slotIncluirFuncao(QString Funcao, QColor Cor)
 {
     try{
         grafico->pushFuncao(Funcao, Cor);
+        exibirFuncoes();
+        desenharGrafico();
     }
     catch(const std::invalid_argument &E){
         QMessageBox::critical(this, "Funcao Invalida", "Erro na funcao: " + QString::fromStdString(E.what()));

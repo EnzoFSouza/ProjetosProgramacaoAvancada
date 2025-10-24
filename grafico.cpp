@@ -47,7 +47,7 @@ void Grafico::setLimites(int MinX, int MaxX, int ExpX, int MinY, int MaxY, int E
 
     minY = MinY * pow(10.0, ExpY);
 
-    maxY = MaxX * pow(10.0, ExpY);
+    maxY = MaxY * pow(10.0, ExpY);
 
     nMarcX = 1 + MaxX - MinX;
 
