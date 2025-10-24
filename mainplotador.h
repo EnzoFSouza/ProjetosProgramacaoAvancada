@@ -6,6 +6,7 @@
 #include <QMessageBox>
 #include "lehfuncao.h"
 #include "evaluator.h"
+#include "grafico.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -44,21 +45,15 @@ private slots:
 
     void slotIncluirFuncao(QString Funcao, QColor Cor);
 
+    void slotGraficoClicked(double X, double Y);
+
 private:
     Ui::MainPlotador *ui;
 
-    double convXtoJ(double X) const; //converte valor X para coordenada (coluna) J
-    double convYtoI(double Y) const; //converte valor Y para coordenada (linha) I
-    double convJtoX(double J) const; //converte coordenada (coluna) J para valor X
-    double convItoY(double I) const; //converte coordenada (linha) I para valor Y
     void exibirFuncoes(); //exibe lista de funcoes a serem plotadas
     void desenharGrafico(); //desenha gráfico com as funções
 
     LehFuncao* lehFuncao;
-    std::vector<Evaluator> eval;
-    std::vector<QColor> cor;
-    int largura, altura;
-    double minX, maxX, minY, maxY;
-    int nMarcX, nMarcY;
+    Grafico* grafico;
 };
 #endif // MAINPLOTADOR_H

@@ -1,6 +1,10 @@
 #include "grafico.h"
+#include <QPen>
+#include <QPainter>
+#include <QResizeEvent>
+#include <QMouseEvent>
 
-Grafico::Grafico(QWidget *parent = nullptr):
+Grafico::Grafico(QWidget *parent):
     QLabel(parent)
     //,eval(std::vector<Evaluator>)
     //, cor(std::vector<QColor>)
@@ -14,7 +18,7 @@ Grafico::Grafico(QWidget *parent = nullptr):
     , nMarcX(0)
     , nMarcY(0)
 {
-    QSizePolicy::Expanding(setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding));
+    setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     setMinimumSize(540, 540);
     setFrameShape(QFrame::Box);
     setFrameShadow(QFrame::Plain);
@@ -23,15 +27,10 @@ Grafico::Grafico(QWidget *parent = nullptr):
 
 void Grafico::pushFuncao(QString Funcao, QColor Cor)
 {
-    try{
-        Evaluator new_eval;
-        new_eval.set(Funcao.toStdString());
-        eval.push_back(new_eval);
-        cor.push_back(Cor);
-    }
-    catch(const std::invalid_argument &E){
-        QMessageBox::critical(this, "Funcao Invalida", "Erro na funcao: " + QString::fromStdString(E.what()));
-    }
+    Evaluator new_eval;
+    new_eval.set(Funcao.toStdString());
+    eval.push_back(new_eval);
+    cor.push_back(Cor);
 }
 
 void Grafico::clearFuncoes()
@@ -162,4 +161,22 @@ double Grafico::convJtoX(double J) const
 double Grafico::convItoY(double I) const
 {
     return maxY-(maxY-minY)*I/(altura-1);
+}
+
+void Grafico::resizeEvent(QResizeEvent *event)
+{
+    if (event->oldSize() != event->size()){
+        desenharGrafico();
+    }
+}
+
+void Grafico::mouseReleaseEvent(QMouseEvent *event)
+{
+    QPointF pos = event->position();
+
+    double X = convJtoX(pos.x());
+    double Y = convItoY(pos.y());
+
+    emit signGraficoClicked(X, Y);
+
 }

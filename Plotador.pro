@@ -10,12 +10,14 @@ CONFIG += c++17
 
 SOURCES += \
     evaluator.cpp \
+    grafico.cpp \
     lehfuncao.cpp \
     main.cpp \
     mainplotador.cpp
 
 HEADERS += \
     evaluator.h \
+    grafico.h \
     lehfuncao.h \
     mainplotador.h
 
